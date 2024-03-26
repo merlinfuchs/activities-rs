@@ -1,0 +1,15 @@
+[package]
+name = "activity"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Discord activities in Rust"
+repository = "https://github.com/merlinfuchs/activity-rs"
+readme = "../README.md"
+
+[dependencies]
+activity-macros = { path = "../activity-macros" }
+activity-sys = { path = "../activity-sys" }
+wasm-bindgen.workspace = true
+serde-wasm-bindgen.workspace = true
+serde.workspace = true
