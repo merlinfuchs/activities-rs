@@ -1,13 +1,19 @@
 # activities-rs
 
-Eronomic Rust bindings to the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk). Not a single line of JavaScript needed!
+Ergonomic Rust bindings to the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk).
+
+## Work in Progress
+
+- [x] Basic bindings
+- [x] Authorization flow
+- [ ] Event handlers
+- [ ] Other Commands
+- [ ] Macros to reduce need for boilerplate
 
 ## Example Usage
 
 ```rust
 use wasm_bindgen::prelude::*;
-use serde::{Serialize, Deserialize};
-
 use activity::{console_log, AuthenticateCommandArgs, AuthorizeCommandArgs, DiscordSDK};
 
 #[wasm_bindgen(start)]

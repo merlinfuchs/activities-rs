@@ -1,7 +1,11 @@
 [package]
 name = "activity-macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
+license = "MIT"
+description = "Macros for Discord activities in Rust"
+repository = "https://github.com/merlinfuchs/activity-rs"
+readme = "../README.md"
 
 [lib]
 proc-macro = true

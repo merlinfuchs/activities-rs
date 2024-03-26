@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "activity"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "activity-macros",
  "activity-sys",
@@ -15,7 +15,7 @@ dependencies = [
 
 [[package]]
 name = "activity-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -27,7 +27,7 @@ dependencies = [
 
 [[package]]
 name = "activity-sys"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
