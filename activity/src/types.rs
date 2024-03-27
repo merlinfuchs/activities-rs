@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct AuthorizeCommandArgs {
@@ -6,7 +6,7 @@ pub struct AuthorizeCommandArgs {
     pub response_type: String,
     pub state: String,
     pub prompt: String,
-    pub scope: Vec<String>
+    pub scope: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -37,7 +37,7 @@ pub struct User {
     pub avatar: Option<String>,
     pub public_flags: u64,
     #[serde(default)]
-    pub global_name: Option<String>
+    pub global_name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -46,8 +46,29 @@ pub struct Application {
     pub name: String,
     pub description: String,
     #[serde(default)]
-    pub icon: Option<String>
+    pub icon: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct Event {}
+pub struct ReadyEvent {
+    pub v: u8,
+    pub config: ReadyEventConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ReadyEventConfig {
+    cdn_host: String,
+    api_endpoint: String,
+    environment: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ErrorEvent {
+    pub code: u64,
+    pub message: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct VoiceStateUpdateEvent {
+    pub mute: bool,
+}

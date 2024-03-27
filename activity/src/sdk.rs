@@ -4,12 +4,12 @@ use wasm_bindgen::JsValue;
 use crate::types::*;
 
 pub struct DiscordSDK {
-    internal: activity_sys::DiscordSDK,
+    internal: activity_sys::sdk::DiscordSDK,
 }
 
 impl DiscordSDK {
     pub fn new(client_id: &str) -> Result<Self, JsValue> {
-        let internal = activity_sys::DiscordSDK::new(client_id)?;
+        let internal = activity_sys::sdk::DiscordSDK::new(client_id)?;
 
         Ok(Self { internal })
     }
