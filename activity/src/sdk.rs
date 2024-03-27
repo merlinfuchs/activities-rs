@@ -1,48 +1,95 @@
+use std::sync::Arc;
+
+use activity_sys::console_debug;
+use serde::de::DeserializeOwned;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsValue;
 
 use crate::types::*;
 
+#[derive(Clone)]
 pub struct DiscordSDK {
-    internal: activity_sys::sdk::DiscordSDK,
+    internal: Arc<activity_sys::sdk::DiscordSDK>,
 }
 
 impl DiscordSDK {
     pub fn new(client_id: &str) -> Result<Self, JsValue> {
         let internal = activity_sys::sdk::DiscordSDK::new(client_id)?;
 
-        Ok(Self { internal })
+        Ok(Self {
+            internal: Arc::new(internal),
+        })
     }
 
     pub async fn ready(&self) -> Result<(), JsValue> {
         self.internal.ready().await
     }
 
-    pub async fn subscribe<F: 'static>(&self, event: &str, mut f: F) -> Result<Closure<dyn FnMut(JsValue)>, JsValue> where F: FnMut(Event)  {
+    pub async fn subscribe<F: 'static, T>(
+        &self,
+        event: &str,
+        mut f: F,
+        args: SubscribeArgs,
+    ) -> Result<EventSubscription, JsValue>
+    where
+        T: DeserializeOwned,
+        F: FnMut(T) -> Result<(), JsValue>,
+    {
         let closure = Closure::new(move |v: JsValue| {
-            let event: Event = serde_wasm_bindgen::from_value(v).unwrap();
-            f(event);
+            let event: T = serde_wasm_bindgen::from_value(v)?;
+            f(event)
         });
 
-        self.internal.subscribe(event, &closure).await?;
-        Ok(closure)
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal.subscribe(event, &closure, args_value).await?;
+        Ok(EventSubscription {
+            sdk: self.clone(),
+            event: event.to_string(),
+            _closure: closure,
+        })
     }
 
-    pub async fn unsubscribe(&self, event: &str) -> Result<(), JsValue>  {
+    pub async fn unsubscribe(&self, event: &str) -> Result<(), JsValue> {
         self.internal.unsubscribe(event).await
     }
 
-    pub async fn authenticate(&self, args: AuthenticateCommandArgs) -> Result<AuthenticateCommandRes, JsValue> {
+    pub fn unsubscribe_nowait(&self, event: &str) {
+        self.internal.unsubscribe_nowait(event)
+    }
+
+    pub async fn authenticate(
+        &self,
+        args: AuthenticateCommandArgs,
+    ) -> Result<AuthenticateCommandRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
         let res = self.internal.commands().authenticate(args_value).await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn authorize(&self, args: AuthorizeCommandArgs) -> Result<AuthorizeCommandRes, JsValue> {
+    pub async fn authorize(
+        &self,
+        args: AuthorizeCommandArgs,
+    ) -> Result<AuthorizeCommandRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
         let res = self.internal.commands().authorize(args_value).await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+}
+
+pub struct EventSubscription {
+    sdk: DiscordSDK,
+    event: String,
+    _closure: Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
+}
+
+impl Drop for EventSubscription {
+    fn drop(&mut self) {
+        console_debug!(
+            "EventSubscription dropped, unsubscribing from event: {}",
+            self.event
+        );
+        let _ = self.sdk.unsubscribe_nowait(&self.event);
     }
 }

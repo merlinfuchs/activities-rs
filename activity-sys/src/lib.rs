@@ -1,6 +1,6 @@
 pub use web_sys;
 
-pub mod glue;
+pub mod sdk;
 
 #[macro_export]
 macro_rules! console_debug {
