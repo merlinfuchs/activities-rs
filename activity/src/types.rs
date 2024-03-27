@@ -2,41 +2,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct SdkConfiguration {
-    #[serde(rename = "disableConsoleLogOverride")]
-    pub disable_console_log_override: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct AuthorizeCommandArgs {
-    pub client_id: String,
-    pub response_type: String,
-    pub state: String,
-    pub prompt: String,
-    pub scope: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct AuthorizeCommandRes {
-    pub code: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct AuthenticateCommandArgs {
-    pub access_token: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct AuthenticateCommandRes {
-    pub access_token: String,
-    pub scopes: Vec<String>,
-    pub expires: String,
-    pub user: User,
-    pub application: Application,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct User {
     pub id: String,
     pub username: String,
@@ -55,7 +21,7 @@ pub struct User {
     pub bot: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Application {
     pub id: String,
     pub name: String,
@@ -64,7 +30,117 @@ pub struct Application {
     pub icon: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Channel {}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Activity {}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SdkConfiguration {
+    #[serde(rename = "disableConsoleLogOverride")]
+    pub disable_console_log_override: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AuthorizeArgs {
+    pub client_id: String,
+    pub response_type: String,
+    pub state: String,
+    pub prompt: String,
+    pub scope: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AuthorizeRes {
+    pub code: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AuthenticateArgs {
+    pub access_token: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AuthenticateRes {
+    pub access_token: String,
+    pub scopes: Vec<String>,
+    pub expires: String,
+    pub user: User,
+    pub application: Application,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CaputeLogArgs {
+    pub level: String,
+    pub message: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetChannelArgs {
+    pub channel_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetChannelRes {
+    #[serde(flatten)]
+    pub channel: Channel,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetChannelPermissionsRes {
+    // TODO: Implement this struct
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetInstanceConnectedParticipantsRes {
+    pub participants: Vec<User>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetPlatformBehaviorsRes {
+    // TODO: Implement this struct
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct InitiateImageUploadRes {
+    // TODO: Implement this struct
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenExternalLinkArgs {
+    pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenShareMomentDialogArgs {
+    #[serde(rename = "mediaUrl")]
+    pub media_url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SetActivityArgs {
+    pub activity: Activity,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SetConfigArgs {
+    pub user_interactive_pip: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SetOrientationLockStateArgs {
+    pub lock_state: String,
+    pub picture_in_picture_lock_state: String,
+    pub grid_lock_state: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserSettingsGetLocaleRes {
+    // TODO: Implement this struct
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ReadyEvent {
     pub v: u8,
     pub config: ReadyEventConfig,
@@ -76,14 +152,14 @@ impl EventPayload for ReadyEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ReadyEventConfig {
     cdn_host: String,
     api_endpoint: String,
     environment: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ErrorEvent {
     pub code: u64,
     pub message: String,
@@ -95,7 +171,7 @@ impl EventPayload for ErrorEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VoiceStateUpdateEvent {
     pub voice_state: VoiceState,
     pub user: User,
@@ -113,7 +189,7 @@ impl EventPayload for VoiceStateUpdateEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VoiceState {
     pub mute: bool,
     pub deaf: bool,
@@ -122,13 +198,13 @@ pub struct VoiceState {
     pub suppress: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VoiceStateUpdatePan {
     pub left: f32,
     pub right: f32,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SpeakingStartEvent {
     pub channel_id: String,
     pub user_id: String,
@@ -140,7 +216,7 @@ impl EventPayload for SpeakingStartEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SpeakingStopEvent {
     pub channel_id: String,
     pub user_id: String,
@@ -152,7 +228,7 @@ impl EventPayload for SpeakingStopEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ActivityLayoutModeUpdateEvent {
     pub layout_mode: u8,
 }
@@ -163,7 +239,7 @@ impl EventPayload for ActivityLayoutModeUpdateEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OrientationUpdateEvent {
     pub screen_orientation: u8,
 }
@@ -174,7 +250,7 @@ impl EventPayload for OrientationUpdateEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CurrentUserUpdateEvent {
     #[serde(flatten)]
     pub user: User,
@@ -186,7 +262,7 @@ impl EventPayload for CurrentUserUpdateEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ThermalStateUpdateEvent {
     pub thermal_state: u8,
 }
@@ -197,7 +273,7 @@ impl EventPayload for ThermalStateUpdateEvent {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ActivityInstanceParticipantsUpdateEvent {
     pub participants: Vec<User>,
 }
@@ -250,7 +326,7 @@ pub trait EventPayload {
     fn event_type() -> EventType;
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SubscribeArgs {
     pub channel_id: String,
 }

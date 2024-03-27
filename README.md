@@ -7,8 +7,7 @@ Ergonomic Rust bindings to the [Discord Embedded App SDK](https://github.com/dis
 - [x] Basic bindings
 - [x] Authorization flow
 - [x] Event handlers
-- [ ] Other Commands
-- [ ] Macros to reduce need for boilerplate
+- [x] Other Commands
 
 ## Example Usage
 

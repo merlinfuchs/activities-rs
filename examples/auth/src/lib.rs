@@ -32,12 +32,36 @@ pub async fn start() -> Result<(), JsValue> {
     // When the closure is dropped, the event will be unsubscribed
     forget(s);
 
+    let s = sdk
+        .subscribe(
+            |e: SpeakingStartEvent| {
+                console_log!("Speaking start: {:?}", e);
+                Ok(())
+            },
+            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+        )
+        .await?;
+
+    forget(s);
+
+    let s = sdk
+        .subscribe(
+            |e: SpeakingStopEvent| {
+                console_log!("Speaking stop: {:?}", e);
+                Ok(())
+            },
+            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+        )
+        .await?;
+
+    forget(s);
+
     Ok(())
 }
 
 async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
     let res = sdk
-        .authorize(AuthorizeCommandArgs {
+        .authorize(AuthorizeArgs {
             client_id: sdk.client_id(),
             response_type: "code".to_string(),
             state: "".to_string(),
@@ -52,9 +76,7 @@ async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
 
     let access_token = exchange_token(&res.code).await?;
 
-    let res = sdk
-        .authenticate(AuthenticateCommandArgs { access_token })
-        .await?;
+    let res = sdk.authenticate(AuthenticateArgs { access_token }).await?;
 
     console_log!("Authenticated user: {:?}", res.user);
 

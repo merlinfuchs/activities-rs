@@ -59,4 +59,57 @@ extern "C" {
     #[wasm_bindgen(method, catch)]
     pub async fn authenticate(this: &DiscordSDKCommands, args: JsValue)
         -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = captureLog)]
+    pub async fn capture_log(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = encourageHardwareAcceleration)]
+    pub async fn encourage_hardware_acceleration(this: &DiscordSDKCommands) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getChannel)]
+    pub async fn get_channel(this: &DiscordSDKCommands, args: JsValue) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getChannelPermissions)]
+    pub async fn get_channel_permissions(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getInstanceConnectedParticipants)]
+    pub async fn get_instance_connected_participants(
+        this: &DiscordSDKCommands,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getPlatformBehaviors)]
+    pub async fn get_platform_behaviors(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = initiateImageUpload)]
+    pub async fn initiate_image_upload(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = openExternalLink)]
+    pub async fn open_external_link(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = openInviteDialog)]
+    pub async fn open_invite_dialog(this: &DiscordSDKCommands) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = openShareMomentDialog)]
+    pub async fn open_share_moment_dialog(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = setActivity)]
+    pub async fn set_activity(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = setConfig)]
+    pub async fn set_config(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = setOrientationLockState)]
+    pub async fn set_orientation_lock_state(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = userSettingsGetLocale)]
+    pub async fn user_settings_get_locale(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
 }

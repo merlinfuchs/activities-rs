@@ -86,23 +86,115 @@ impl DiscordSDK {
         self.internal.unsubscribe_nowait(event)
     }
 
-    pub async fn authenticate(
-        &self,
-        args: AuthenticateCommandArgs,
-    ) -> Result<AuthenticateCommandRes, JsValue> {
+    pub async fn authenticate(&self, args: AuthenticateArgs) -> Result<AuthenticateRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
         let res = self.internal.commands().authenticate(args_value).await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn authorize(
-        &self,
-        args: AuthorizeCommandArgs,
-    ) -> Result<AuthorizeCommandRes, JsValue> {
+    pub async fn authorize(&self, args: AuthorizeArgs) -> Result<AuthorizeRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
         let res = self.internal.commands().authorize(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn capture_log(&self, args: CaputeLogArgs) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal.commands().capture_log(args_value).await
+    }
+
+    pub async fn encourage_hardware_acceleration(&self) -> Result<(), JsValue> {
+        self.internal
+            .commands()
+            .encourage_hardware_acceleration()
+            .await
+    }
+
+    pub async fn get_channel(&self, args: GetChannelArgs) -> Result<GetChannelRes, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self.internal.commands().get_channel(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_channel_permissions(&self) -> Result<GetChannelPermissionsRes, JsValue> {
+        let res = self.internal.commands().get_channel_permissions().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_instance_connected_participants(
+        &self,
+    ) -> Result<GetInstanceConnectedParticipantsRes, JsValue> {
+        let res = self
+            .internal
+            .commands()
+            .get_instance_connected_participants()
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_platform_behaviors(&self) -> Result<GetPlatformBehaviorsRes, JsValue> {
+        let res = self.internal.commands().get_platform_behaviors().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn initiate_image_upload(&self) -> Result<InitiateImageUploadRes, JsValue> {
+        let res = self.internal.commands().initiate_image_upload().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn open_external_link(&self, args: OpenExternalLinkArgs) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal
+            .commands()
+            .open_external_link(args_value)
+            .await
+    }
+
+    pub async fn open_invite_dialog(&self) -> Result<(), JsValue> {
+        self.internal.commands().open_invite_dialog().await
+    }
+
+    pub async fn open_share_moment_dialog(
+        &self,
+        args: OpenShareMomentDialogArgs,
+    ) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal
+            .commands()
+            .open_share_moment_dialog(args_value)
+            .await
+    }
+
+    pub async fn set_activity(&self, args: JsValue) -> Result<(), JsValue> {
+        self.internal.commands().set_activity(args).await
+    }
+
+    pub async fn set_config(&self, args: SetConfigArgs) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal.commands().set_config(args_value).await
+    }
+
+    pub async fn set_orientation_lock_state(
+        &self,
+        args: SetOrientationLockStateArgs,
+    ) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal
+            .commands()
+            .set_orientation_lock_state(args_value)
+            .await
+    }
+
+    pub async fn user_settings_get_locale(&self) -> Result<UserSettingsGetLocaleRes, JsValue> {
+        let res = self.internal.commands().user_settings_get_locale().await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 }
