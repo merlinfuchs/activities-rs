@@ -14,13 +14,14 @@ Ergonomic Rust bindings to the [Discord Embedded App SDK](https://github.com/dis
 
 ```rust
 use activity::*;
-use std::mem::forget;
+use std::{mem::forget, option_env};
 
 #[activity]
 pub async fn start() -> Result<(), JsValue> {
     console_log!("Starting activity...");
 
-    let sdk = DiscordSDK::new("914869961279819796")?;
+    let client_id = option_env!("CLIENT_ID").expect("CLIENT_ID environment variable must be set");
+    let sdk = DiscordSDK::new(client_id)?;
     sdk.ready().await?;
 
     console_log!("Activity ready!");
@@ -46,7 +47,7 @@ pub async fn start() -> Result<(), JsValue> {
 async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
     let res = sdk
         .authorize(AuthorizeCommandArgs {
-            client_id: "914869961279819796".to_string(),
+            client_id: sdk.client_id(),
             response_type: "code".to_string(),
             state: "".to_string(),
             prompt: "none".to_string(),

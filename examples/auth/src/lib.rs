@@ -1,4 +1,4 @@
-use std::mem::forget;
+use std::{mem::forget, option_env};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +11,8 @@ use web_sys::{Request, RequestInit, Response};
 pub async fn start() -> Result<(), JsValue> {
     console_log!("Starting activity...");
 
-    let sdk = DiscordSDK::new("914869961279819796")?;
+    let client_id = option_env!("CLIENT_ID").expect("CLIENT_ID environment variable must be set");
+    let sdk = DiscordSDK::new(client_id)?;
     sdk.ready().await?;
 
     console_log!("Activity ready!");
@@ -37,7 +38,7 @@ pub async fn start() -> Result<(), JsValue> {
 async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
     let res = sdk
         .authorize(AuthorizeCommandArgs {
-            client_id: "914869961279819796".to_string(),
+            client_id: sdk.client_id(),
             response_type: "code".to_string(),
             state: "".to_string(),
             prompt: "none".to_string(),
@@ -70,6 +71,7 @@ async fn exchange_token(code: &str) -> Result<String, JsValue> {
     opts.method("POST")
         .body(Some(&JsValue::from_str(&req_value)));
 
+    // You must host this endpoint yourself
     let req = Request::new_with_str_and_init("/api/auth/exchange", &opts)?;
     req.headers().set("Content-Type", "application/json")?;
 
