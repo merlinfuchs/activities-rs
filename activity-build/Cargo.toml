@@ -1,7 +1,11 @@
 [package]
 name = "activity-build"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
+license = "MIT"
+description = "Build tool for Discord activities in Rust"
+repository = "https://github.com/merlinfuchs/activity-rs"
+readme = "../README.md"
 
 [dependencies]
 anyhow = "1.0.81"

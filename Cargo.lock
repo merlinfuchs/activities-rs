@@ -12,7 +12,7 @@ dependencies = [
 
 [[package]]
 name = "activity"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "activity-macros",
  "activity-sys",
@@ -24,7 +24,7 @@ dependencies = [
 
 [[package]]
 name = "activity-build"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "dirs-next",
@@ -35,7 +35,7 @@ dependencies = [
 
 [[package]]
 name = "activity-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -47,7 +47,7 @@ dependencies = [
 
 [[package]]
 name = "activity-sys"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
