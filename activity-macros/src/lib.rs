@@ -1,6 +1,8 @@
 use proc_macro::TokenStream;
 
+mod activity;
+
 #[proc_macro_attribute]
-pub fn event(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    item
+pub fn activity(attr: TokenStream, item: TokenStream) -> TokenStream {
+    activity::expand_macro(attr, item)
 }
