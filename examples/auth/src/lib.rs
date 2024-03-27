@@ -20,12 +20,11 @@ pub async fn start() -> Result<(), JsValue> {
 
     let s = sdk
         .subscribe(
-            "VOICE_STATE_UPDATE",
             |e: VoiceStateUpdateEvent| {
                 console_log!("Voice state update: {:?}", e);
                 Ok(())
             },
-            SubscribeArgs::channel_id("1139202528517558332"),
+            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
         )
         .await?;
 

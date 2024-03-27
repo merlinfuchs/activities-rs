@@ -20,18 +20,42 @@ impl DiscordSDK {
         })
     }
 
+    pub fn client_id(&self) -> String {
+        self.internal.client_id()
+    }
+
+    pub fn instance_id(&self) -> String {
+        self.internal.instance_id()
+    }
+
+    pub fn platform(&self) -> String {
+        self.internal.platform()
+    }
+
+    pub fn guild_id(&self) -> Option<String> {
+        self.internal.guild_id()
+    }
+
+    pub fn channel_id(&self) -> Option<String> {
+        self.internal.channel_id()
+    }
+
+    pub fn configuration(&self) -> SdkConfiguration {
+        serde_wasm_bindgen::from_value(self.internal.configuration())
+            .expect("Failed to deserialize SdkConfiguration")
+    }
+
     pub async fn ready(&self) -> Result<(), JsValue> {
         self.internal.ready().await
     }
 
     pub async fn subscribe<F: 'static, T>(
         &self,
-        event: &str,
         mut f: F,
         args: SubscribeArgs,
     ) -> Result<EventSubscription, JsValue>
     where
-        T: DeserializeOwned,
+        T: DeserializeOwned + EventPayload,
         F: FnMut(T) -> Result<(), JsValue>,
     {
         let closure = Closure::new(move |v: JsValue| {
@@ -41,10 +65,15 @@ impl DiscordSDK {
 
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        self.internal.subscribe(event, &closure, args_value).await?;
+        let event_type = T::event_type();
+
+        self.internal
+            .subscribe(event_type.as_str(), &closure, args_value)
+            .await?;
+
         Ok(EventSubscription {
             sdk: self.clone(),
-            event: event.to_string(),
+            event_type: event_type,
             _closure: closure,
         })
     }
@@ -80,7 +109,7 @@ impl DiscordSDK {
 
 pub struct EventSubscription {
     sdk: DiscordSDK,
-    event: String,
+    event_type: EventType,
     _closure: Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
 }
 
@@ -88,8 +117,8 @@ impl Drop for EventSubscription {
     fn drop(&mut self) {
         console_debug!(
             "EventSubscription dropped, unsubscribing from event: {}",
-            self.event
+            self.event_type
         );
-        let _ = self.sdk.unsubscribe_nowait(&self.event);
+        let _ = self.sdk.unsubscribe_nowait(self.event_type.as_str());
     }
 }

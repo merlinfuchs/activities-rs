@@ -9,6 +9,24 @@ extern "C" {
     #[wasm_bindgen(constructor, catch)]
     pub fn new(clientId: &str) -> Result<DiscordSDK, JsValue>;
 
+    #[wasm_bindgen(method, getter, js_name = clientId)]
+    pub fn client_id(this: &DiscordSDK) -> String;
+
+    #[wasm_bindgen(method, getter, js_name = instanceId)]
+    pub fn instance_id(this: &DiscordSDK) -> String;
+
+    #[wasm_bindgen(method, getter)]
+    pub fn platform(this: &DiscordSDK) -> String;
+
+    #[wasm_bindgen(method, getter, js_name = guildId)]
+    pub fn guild_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter, js_name = channelId)]
+    pub fn channel_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter)]
+    pub fn configuration(this: &DiscordSDK) -> JsValue;
+
     #[wasm_bindgen(method, getter)]
     pub fn commands(this: &DiscordSDK) -> DiscordSDKCommands;
 
