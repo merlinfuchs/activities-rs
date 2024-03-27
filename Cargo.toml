@@ -1,9 +1,11 @@
 [workspace]
 members = [
-    "activity", 
+    "activity",
     "activity-macros", 
     "activity-sys", 
-    "examples/auth"
+    "activity-build", 
+    "examples/auth", 
+    "examples/webpack"
 ]
 resolver = "2"
 

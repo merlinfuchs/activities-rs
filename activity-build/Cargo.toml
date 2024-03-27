@@ -1,0 +1,11 @@
+[package]
+name = "activity-build"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.81"
+dirs-next = "2.0.0"
+flate2 = "1.0.28"
+tar = "0.4.40"
+ureq = "2.9.6"
