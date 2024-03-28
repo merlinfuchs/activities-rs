@@ -2,10 +2,11 @@
 
 Ergonomic Rust bindings to the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk).
 
-## Work in Progress
+## Features
 
 - [x] Support for all commands
 - [x] Support for all events
+- [x] No JS required
 
 ## Example Usage
 
