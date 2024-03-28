@@ -16,6 +16,10 @@ const OUT_DIR: &str = "build";
 const OUT_NAME: &str = "index";
 const ACTIVITY_SUBDIR: &str = "activity";
 
+const SDK_IMPORT: &str = "@discord/embedded-app-sdk";
+
+const SDK_IMPORT_REPLACEMENT: &str = "./sdk";
+
 mod install;
 
 pub fn main() -> Result<()> {
@@ -35,8 +39,10 @@ pub fn main() -> Result<()> {
 
     create_activity_dir()?;
     copy_generated_code_to_activity_dir()?;
+    replace_sdk_import()?;
 
     write_string_to_file(activity_path("shim.js"), include_str!("./static/shim.js"))?;
+    write_string_to_file(activity_path("sdk.js"), include_str!("./static/sdk.js"))?;
     write_string_to_file(
         activity_path("index.html"),
         include_str!("./static/index.html"),
@@ -179,6 +185,15 @@ fn copy_generated_code_to_activity_dir() -> Result<()> {
     Ok(())
 }
 
+// Replaces the import of the official SDK with the local one.
+fn replace_sdk_import() -> Result<()> {
+    let bindgen_glue_path = activity_path(format!("{OUT_NAME}_bg.js"));
+    let old_bindgen_glue = read_file_to_string(&bindgen_glue_path)?;
+    let fixed_bindgen_glue = old_bindgen_glue.replace(SDK_IMPORT, SDK_IMPORT_REPLACEMENT);
+    write_string_to_file(bindgen_glue_path, fixed_bindgen_glue)?;
+    Ok(())
+}
+
 // Bundles the snippets and activity-related code into a single file.
 fn bundle(esbuild_path: &Path) -> Result<()> {
     let no_minify = !matches!(env::var("NO_MINIFY"), Err(VarError::NotPresent));
@@ -218,12 +233,20 @@ fn remove_unused_js() -> Result<()> {
     for to_remove in [
         format!("{OUT_NAME}_bg.js"),
         "shim.js".into(),
-        "glue.js".into(),
+        "sdk.js".into(),
     ] {
         std::fs::remove_file(activity_path(to_remove))?;
     }
 
     Ok(())
+}
+
+fn read_file_to_string<P: AsRef<Path>>(path: P) -> Result<String> {
+    let file_size = path.as_ref().metadata()?.len().try_into()?;
+    let mut file = File::open(path)?;
+    let mut buf = Vec::with_capacity(file_size);
+    file.read_to_end(&mut buf)?;
+    String::from_utf8(buf).map_err(anyhow::Error::from)
 }
 
 fn write_string_to_file<P: AsRef<Path>>(path: P, contents: impl AsRef<str>) -> Result<()> {

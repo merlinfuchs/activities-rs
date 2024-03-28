@@ -68,3 +68,20 @@ async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
     Ok(())
 }
 ```
+
+## Compiling an Activity
+
+There is a build tool that makes it really easy to compile and bundle Rust activities. The finished bundle will be located in `build/activity`.
+
+Alternatively you can also use webpack with the wasm-pack plugin. See the [webpack example](examples/webpack).
+
+```shell
+# Install the build tool
+cargo install activity-build
+
+# Set env vars
+export CLIENT_ID=1234567890
+
+# Run it in the directory where your `Cargo.toml` is located
+activity-build --release
+```
