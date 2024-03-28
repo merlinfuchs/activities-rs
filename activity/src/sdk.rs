@@ -171,8 +171,10 @@ impl DiscordSDK {
             .await
     }
 
-    pub async fn set_activity(&self, args: JsValue) -> Result<(), JsValue> {
-        self.internal.commands().set_activity(args).await
+    pub async fn set_activity(&self, args: SetActivityArgs) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal.commands().set_activity(args_value).await
     }
 
     pub async fn set_config(&self, args: SetConfigArgs) -> Result<(), JsValue> {
