@@ -15,6 +15,12 @@ extern "C" {
     #[wasm_bindgen(method, getter, js_name = instanceId)]
     pub fn instance_id(this: &DiscordSDK) -> String;
 
+    #[wasm_bindgen(method, getter, js_name = customId)]
+    pub fn custom_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter, js_name = referrerId)]
+    pub fn referrer_id(this: &DiscordSDK) -> Option<String>;
+
     #[wasm_bindgen(method, getter)]
     pub fn platform(this: &DiscordSDK) -> String;
 
@@ -23,6 +29,9 @@ extern "C" {
 
     #[wasm_bindgen(method, getter, js_name = channelId)]
     pub fn channel_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter, js_name = sourceOrigin)]
+    pub fn source_origin(this: &DiscordSDK) -> Option<String>;
 
     #[wasm_bindgen(method, getter)]
     pub fn configuration(this: &DiscordSDK) -> JsValue;
@@ -87,7 +96,7 @@ extern "C" {
     pub async fn open_external_link(
         this: &DiscordSDKCommands,
         args: JsValue,
-    ) -> Result<(), JsValue>;
+    ) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = openInviteDialog)]
     pub async fn open_invite_dialog(this: &DiscordSDKCommands) -> Result<(), JsValue>;

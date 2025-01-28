@@ -22,6 +22,27 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Member {
+    pub user_id: String,
+    pub guild_id: String,
+    #[serde(default)]
+    pub nick: Option<String>,
+    #[serde(default)]
+    pub avatar: Option<String>,
+    #[serde(default)]
+    pub color_string: Option<String>,
+    #[serde(default)]
+    pub avatar_decoration_data: Option<MemberAvatarDecorationData>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MemberAvatarDecorationData {
+    pub asset: String,
+    #[serde(default)]
+    pub sku_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Application {
     pub id: String,
     pub name: String,
@@ -89,7 +110,8 @@ pub struct GetChannelRes {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetChannelPermissionsRes {
-    // TODO: Implement this struct
+    #[serde(default)]
+    pub permissions: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -99,17 +121,24 @@ pub struct GetInstanceConnectedParticipantsRes {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetPlatformBehaviorsRes {
-    // TODO: Implement this struct
+    #[serde(default, rename = "iosKeyboardResizesView")]
+    pub ios_keyboard_resizes_view: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InitiateImageUploadRes {
-    // TODO: Implement this struct
+    pub image_url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenExternalLinkArgs {
     pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenExternalLinkRes {
+    #[serde(default)]
+    pub opened: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -263,6 +292,18 @@ impl EventPayload for CurrentUserUpdateEvent {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct CurrentGuildMemberUpdateEvent {
+    #[serde(flatten)]
+    pub member: Member,
+}
+
+impl EventPayload for CurrentGuildMemberUpdateEvent {
+    fn event_type() -> EventType {
+        EventType::CurrentGuildMemberUpdate
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ThermalStateUpdateEvent {
     pub thermal_state: u8,
 }
@@ -293,6 +334,7 @@ pub enum EventType {
     ActivityLayoutModeUpdate,
     OrientationUpdate,
     CurrentUserUpdate,
+    CurrentGuildMemberUpdate,
     ThermalStateUpdate,
     ActivityInstanceParticipantsUpdate,
 }
@@ -308,6 +350,7 @@ impl EventType {
             EventType::ActivityLayoutModeUpdate => "ACTIVITY_LAYOUT_MODE_UPDATE",
             EventType::OrientationUpdate => "ORIENTATION_UPDATE",
             EventType::CurrentUserUpdate => "CURRENT_USER_UPDATE",
+            EventType::CurrentGuildMemberUpdate => "CURRENT_GUILD_MEMBER_UPDATE",
             EventType::ThermalStateUpdate => "THERMAL_STATE_UPDATE",
             EventType::ActivityInstanceParticipantsUpdate => {
                 "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE"

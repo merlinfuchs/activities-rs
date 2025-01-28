@@ -4,6 +4,8 @@ Ergonomic Rust bindings to the [Discord Embedded App SDK](https://github.com/dis
 
 ## Features
 
+Currently bundled SDK version: `1.9.0`.
+
 - [x] Support for all commands
 - [x] Support for all events
 - [x] No JS required

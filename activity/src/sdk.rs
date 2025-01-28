@@ -28,6 +28,14 @@ impl DiscordSDK {
         self.internal.instance_id()
     }
 
+    pub fn custom_id(&self) -> Option<String> {
+        self.internal.custom_id()
+    }
+
+    pub fn referrer_id(&self) -> Option<String> {
+        self.internal.referrer_id()
+    }
+
     pub fn platform(&self) -> String {
         self.internal.platform()
     }
@@ -38,6 +46,10 @@ impl DiscordSDK {
 
     pub fn channel_id(&self) -> Option<String> {
         self.internal.channel_id()
+    }
+
+    pub fn source_origin(&self) -> Option<String> {
+        self.internal.source_origin()
     }
 
     pub fn configuration(&self) -> SdkConfiguration {
@@ -146,13 +158,15 @@ impl DiscordSDK {
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn open_external_link(&self, args: OpenExternalLinkArgs) -> Result<(), JsValue> {
+    pub async fn open_external_link(&self, args: OpenExternalLinkArgs) -> Result<OpenExternalLinkRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        self.internal
+        let res = self.internal
             .commands()
             .open_external_link(args_value)
-            .await
+            .await?;
+
+        Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
     pub async fn open_invite_dialog(&self) -> Result<(), JsValue> {

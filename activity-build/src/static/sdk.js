@@ -38,8 +38,7 @@ var require_eventemitter3 = __commonJS({
     }
     if (Object.create) {
       Events2.prototype = /* @__PURE__ */ Object.create(null);
-      if (!new Events2().__proto__)
-        prefix = false;
+      if (!new Events2().__proto__) prefix = false;
     }
     function EE(fn, context, once) {
       this.fn = fn;
@@ -51,64 +50,51 @@ var require_eventemitter3 = __commonJS({
         throw new TypeError("The listener must be a function");
       }
       var listener = new EE(fn, context || emitter, once), evt = prefix ? prefix + event : event;
-      if (!emitter._events[evt])
-        emitter._events[evt] = listener, emitter._eventsCount++;
-      else if (!emitter._events[evt].fn)
-        emitter._events[evt].push(listener);
-      else
-        emitter._events[evt] = [emitter._events[evt], listener];
+      if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
+      else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
+      else emitter._events[evt] = [emitter._events[evt], listener];
       return emitter;
     }
     function clearEvent(emitter, evt) {
-      if (--emitter._eventsCount === 0)
-        emitter._events = new Events2();
-      else
-        delete emitter._events[evt];
+      if (--emitter._eventsCount === 0) emitter._events = new Events2();
+      else delete emitter._events[evt];
     }
-    function EventEmitter3() {
+    function EventEmitter2() {
       this._events = new Events2();
       this._eventsCount = 0;
     }
-    EventEmitter3.prototype.eventNames = function eventNames() {
+    EventEmitter2.prototype.eventNames = function eventNames() {
       var names = [], events, name;
-      if (this._eventsCount === 0)
-        return names;
+      if (this._eventsCount === 0) return names;
       for (name in events = this._events) {
-        if (has.call(events, name))
-          names.push(prefix ? name.slice(1) : name);
+        if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
       }
       if (Object.getOwnPropertySymbols) {
         return names.concat(Object.getOwnPropertySymbols(events));
       }
       return names;
     };
-    EventEmitter3.prototype.listeners = function listeners(event) {
+    EventEmitter2.prototype.listeners = function listeners(event) {
       var evt = prefix ? prefix + event : event, handlers = this._events[evt];
-      if (!handlers)
-        return [];
-      if (handlers.fn)
-        return [handlers.fn];
+      if (!handlers) return [];
+      if (handlers.fn) return [handlers.fn];
       for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
         ee[i] = handlers[i].fn;
       }
       return ee;
     };
-    EventEmitter3.prototype.listenerCount = function listenerCount(event) {
+    EventEmitter2.prototype.listenerCount = function listenerCount(event) {
       var evt = prefix ? prefix + event : event, listeners = this._events[evt];
-      if (!listeners)
-        return 0;
-      if (listeners.fn)
-        return 1;
+      if (!listeners) return 0;
+      if (listeners.fn) return 1;
       return listeners.length;
     };
-    EventEmitter3.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
+    EventEmitter2.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
       var evt = prefix ? prefix + event : event;
-      if (!this._events[evt])
-        return false;
+      if (!this._events[evt]) return false;
       var listeners = this._events[evt], len = arguments.length, args, i;
       if (listeners.fn) {
-        if (listeners.once)
-          this.removeListener(event, listeners.fn, void 0, true);
+        if (listeners.once) this.removeListener(event, listeners.fn, void 0, true);
         switch (len) {
           case 1:
             return listeners.fn.call(listeners.context), true;
@@ -130,8 +116,7 @@ var require_eventemitter3 = __commonJS({
       } else {
         var length = listeners.length, j;
         for (i = 0; i < length; i++) {
-          if (listeners[i].once)
-            this.removeListener(event, listeners[i].fn, void 0, true);
+          if (listeners[i].once) this.removeListener(event, listeners[i].fn, void 0, true);
           switch (len) {
             case 1:
               listeners[i].fn.call(listeners[i].context);
@@ -146,26 +131,24 @@ var require_eventemitter3 = __commonJS({
               listeners[i].fn.call(listeners[i].context, a1, a2, a3);
               break;
             default:
-              if (!args)
-                for (j = 1, args = new Array(len - 1); j < len; j++) {
-                  args[j - 1] = arguments[j];
-                }
+              if (!args) for (j = 1, args = new Array(len - 1); j < len; j++) {
+                args[j - 1] = arguments[j];
+              }
               listeners[i].fn.apply(listeners[i].context, args);
           }
         }
       }
       return true;
     };
-    EventEmitter3.prototype.on = function on(event, fn, context) {
+    EventEmitter2.prototype.on = function on(event, fn, context) {
       return addListener(this, event, fn, context, false);
     };
-    EventEmitter3.prototype.once = function once(event, fn, context) {
+    EventEmitter2.prototype.once = function once(event, fn, context) {
       return addListener(this, event, fn, context, true);
     };
-    EventEmitter3.prototype.removeListener = function removeListener(event, fn, context, once) {
+    EventEmitter2.prototype.removeListener = function removeListener(event, fn, context, once) {
       var evt = prefix ? prefix + event : event;
-      if (!this._events[evt])
-        return this;
+      if (!this._events[evt]) return this;
       if (!fn) {
         clearEvent(this, evt);
         return this;
@@ -181,31 +164,28 @@ var require_eventemitter3 = __commonJS({
             events.push(listeners[i]);
           }
         }
-        if (events.length)
-          this._events[evt] = events.length === 1 ? events[0] : events;
-        else
-          clearEvent(this, evt);
+        if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
+        else clearEvent(this, evt);
       }
       return this;
     };
-    EventEmitter3.prototype.removeAllListeners = function removeAllListeners(event) {
+    EventEmitter2.prototype.removeAllListeners = function removeAllListeners(event) {
       var evt;
       if (event) {
         evt = prefix ? prefix + event : event;
-        if (this._events[evt])
-          clearEvent(this, evt);
+        if (this._events[evt]) clearEvent(this, evt);
       } else {
         this._events = new Events2();
         this._eventsCount = 0;
       }
       return this;
     };
-    EventEmitter3.prototype.off = EventEmitter3.prototype.removeListener;
-    EventEmitter3.prototype.addListener = EventEmitter3.prototype.on;
-    EventEmitter3.prefixed = prefix;
-    EventEmitter3.EventEmitter = EventEmitter3;
+    EventEmitter2.prototype.off = EventEmitter2.prototype.removeListener;
+    EventEmitter2.prototype.addListener = EventEmitter2.prototype.on;
+    EventEmitter2.prefixed = prefix;
+    EventEmitter2.EventEmitter = EventEmitter2;
     if ("undefined" !== typeof module) {
-      module.exports = EventEmitter3;
+      module.exports = EventEmitter2;
     }
   }
 });
@@ -218,10 +198,8 @@ var require_BigInteger = __commonJS({
       var BASE = 1e7, LOG_BASE = 7, MAX_INT = 9007199254740992, MAX_INT_ARR = smallToArray(MAX_INT), DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
       var supportsNativeBigInt = typeof BigInt === "function";
       function Integer(v, radix, alphabet, caseSensitive) {
-        if (typeof v === "undefined")
-          return Integer[0];
-        if (typeof radix !== "undefined")
-          return +radix === 10 && !alphabet ? parseValue(v) : parseBase(v, radix, alphabet, caseSensitive);
+        if (typeof v === "undefined") return Integer[0];
+        if (typeof radix !== "undefined") return +radix === 10 && !alphabet ? parseValue(v) : parseBase(v, radix, alphabet, caseSensitive);
         return parseValue(v);
       }
       function BigInteger(value, sign) {
@@ -269,8 +247,7 @@ var require_BigInteger = __commonJS({
       }
       function trim(v) {
         var i2 = v.length;
-        while (v[--i2] === 0)
-          ;
+        while (v[--i2] === 0) ;
         v.length = i2 + 1;
       }
       function createArray(length) {
@@ -282,8 +259,7 @@ var require_BigInteger = __commonJS({
         return x;
       }
       function truncate(n) {
-        if (n > 0)
-          return Math.floor(n);
+        if (n > 0) return Math.floor(n);
         return Math.ceil(n);
       }
       function add(a, b) {
@@ -298,13 +274,11 @@ var require_BigInteger = __commonJS({
           carry = sum === base ? 1 : 0;
           r[i2++] = sum - carry * base;
         }
-        if (carry > 0)
-          r.push(carry);
+        if (carry > 0) r.push(carry);
         return r;
       }
       function addAny(a, b) {
-        if (a.length >= b.length)
-          return add(a, b);
+        if (a.length >= b.length) return add(a, b);
         return add(b, a);
       }
       function addSmall(a, carry) {
@@ -341,8 +315,7 @@ var require_BigInteger = __commonJS({
         }
         var b = n.value;
         if (n.isSmall) {
-          if (isPrecise(a + b))
-            return new SmallInteger(a + b);
+          if (isPrecise(a + b)) return new SmallInteger(a + b);
           b = smallToArray(Math.abs(b));
         }
         return new BigInteger(addSmall(b, Math.abs(a)), a < 0);
@@ -359,14 +332,12 @@ var require_BigInteger = __commonJS({
           if (difference < 0) {
             difference += base;
             borrow = 1;
-          } else
-            borrow = 0;
+          } else borrow = 0;
           r[i2] = difference;
         }
         for (i2 = b_l; i2 < a_l; i2++) {
           difference = a[i2] - borrow;
-          if (difference < 0)
-            difference += base;
+          if (difference < 0) difference += base;
           else {
             r[i2++] = difference;
             break;
@@ -389,8 +360,7 @@ var require_BigInteger = __commonJS({
         }
         value = arrayToSmall(value);
         if (typeof value === "number") {
-          if (sign)
-            value = -value;
+          if (sign) value = -value;
           return new SmallInteger(value);
         }
         return new BigInteger(value, sign);
@@ -405,8 +375,7 @@ var require_BigInteger = __commonJS({
         }
         r = arrayToSmall(r);
         if (typeof r === "number") {
-          if (sign)
-            r = -r;
+          if (sign) r = -r;
           return new SmallInteger(r);
         }
         return new BigInteger(r, sign);
@@ -490,14 +459,12 @@ var require_BigInteger = __commonJS({
       }
       function shiftLeft(x, n) {
         var r = [];
-        while (n-- > 0)
-          r.push(0);
+        while (n-- > 0) r.push(0);
         return r.concat(x);
       }
       function multiplyKaratsuba(x, y) {
         var n = Math.max(x.length, y.length);
-        if (n <= 30)
-          return multiplyLong(x, y);
+        if (n <= 30) return multiplyLong(x, y);
         n = Math.ceil(n / 2);
         var b = x.slice(n), a = x.slice(0, n), d = y.slice(n), c = y.slice(0, n);
         var ac = multiplyKaratsuba(a, c), bd = multiplyKaratsuba(b, d), abcd = multiplyKaratsuba(addAny(a, b), addAny(c, d));
@@ -511,12 +478,9 @@ var require_BigInteger = __commonJS({
       BigInteger.prototype.multiply = function(v) {
         var n = parseValue(v), a = this.value, b = n.value, sign = this.sign !== n.sign, abs;
         if (n.isSmall) {
-          if (b === 0)
-            return Integer[0];
-          if (b === 1)
-            return this;
-          if (b === -1)
-            return this.negate();
+          if (b === 0) return Integer[0];
+          if (b === 1) return this;
+          if (b === -1) return this.negate();
           abs = Math.abs(b);
           if (abs < BASE) {
             return new BigInteger(multiplySmall(a, abs), sign);
@@ -541,12 +505,9 @@ var require_BigInteger = __commonJS({
         return multiplySmallAndArray(Math.abs(a.value), smallToArray(Math.abs(this.value)), this.sign !== a.sign);
       };
       BigInteger.prototype._multiplyBySmall = function(a) {
-        if (a.value === 0)
-          return Integer[0];
-        if (a.value === 1)
-          return this;
-        if (a.value === -1)
-          return this.negate();
+        if (a.value === 0) return Integer[0];
+        if (a.value === 1) return this;
+        if (a.value === -1) return this.negate();
         return multiplySmallAndArray(Math.abs(a.value), this.value, this.sign !== a.sign);
       };
       SmallInteger.prototype.multiply = function(v) {
@@ -578,8 +539,7 @@ var require_BigInteger = __commonJS({
       };
       SmallInteger.prototype.square = function() {
         var value = this.value * this.value;
-        if (isPrecise(value))
-          return new SmallInteger(value);
+        if (isPrecise(value)) return new SmallInteger(value);
         return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
       };
       NativeBigInt.prototype.square = function(v) {
@@ -587,8 +547,7 @@ var require_BigInteger = __commonJS({
       };
       function divMod1(a, b) {
         var a_l = a.length, b_l = b.length, base = BASE, result = createArray(b.length), divisorMostSignificantDigit = b[b_l - 1], lambda = Math.ceil(base / (2 * divisorMostSignificantDigit)), remainder = multiplySmall(a, lambda), divisor = multiplySmall(b, lambda), quotientDigit, shift, carry, borrow, i2, l, q;
-        if (remainder.length <= a_l)
-          remainder.push(0);
+        if (remainder.length <= a_l) remainder.push(0);
         divisor.push(0);
         divisorMostSignificantDigit = divisor[b_l - 1];
         for (shift = a_l - b_l; shift >= 0; shift--) {
@@ -650,8 +609,7 @@ var require_BigInteger = __commonJS({
           guess = Math.ceil(highx / highy);
           do {
             check = multiplySmall(b, guess);
-            if (compareAbs(check, part) <= 0)
-              break;
+            if (compareAbs(check, part) <= 0) break;
             guess--;
           } while (guess);
           result.push(guess);
@@ -678,8 +636,7 @@ var require_BigInteger = __commonJS({
         }
         var a = self2.value, b = n.value;
         var quotient;
-        if (b === 0)
-          throw new Error("Cannot divide by zero");
+        if (b === 0) throw new Error("Cannot divide by zero");
         if (self2.isSmall) {
           if (n.isSmall) {
             return [new SmallInteger(truncate(a / b)), new SmallInteger(a % b)];
@@ -687,20 +644,16 @@ var require_BigInteger = __commonJS({
           return [Integer[0], self2];
         }
         if (n.isSmall) {
-          if (b === 1)
-            return [self2, Integer[0]];
-          if (b == -1)
-            return [self2.negate(), Integer[0]];
+          if (b === 1) return [self2, Integer[0]];
+          if (b == -1) return [self2.negate(), Integer[0]];
           var abs = Math.abs(b);
           if (abs < BASE) {
             value = divModSmall(a, abs);
             quotient = arrayToSmall(value[0]);
             var remainder = value[1];
-            if (self2.sign)
-              remainder = -remainder;
+            if (self2.sign) remainder = -remainder;
             if (typeof quotient === "number") {
-              if (self2.sign !== n.sign)
-                quotient = -quotient;
+              if (self2.sign !== n.sign) quotient = -quotient;
               return [new SmallInteger(quotient), new SmallInteger(remainder)];
             }
             return [new BigInteger(quotient, self2.sign !== n.sign), new SmallInteger(remainder)];
@@ -708,28 +661,21 @@ var require_BigInteger = __commonJS({
           b = smallToArray(abs);
         }
         var comparison = compareAbs(a, b);
-        if (comparison === -1)
-          return [Integer[0], self2];
-        if (comparison === 0)
-          return [Integer[self2.sign === n.sign ? 1 : -1], Integer[0]];
+        if (comparison === -1) return [Integer[0], self2];
+        if (comparison === 0) return [Integer[self2.sign === n.sign ? 1 : -1], Integer[0]];
         if (a.length + b.length <= 200)
           value = divMod1(a, b);
-        else
-          value = divMod2(a, b);
+        else value = divMod2(a, b);
         quotient = value[0];
         var qSign = self2.sign !== n.sign, mod = value[1], mSign = self2.sign;
         if (typeof quotient === "number") {
-          if (qSign)
-            quotient = -quotient;
+          if (qSign) quotient = -quotient;
           quotient = new SmallInteger(quotient);
-        } else
-          quotient = new BigInteger(quotient, qSign);
+        } else quotient = new BigInteger(quotient, qSign);
         if (typeof mod === "number") {
-          if (mSign)
-            mod = -mod;
+          if (mSign) mod = -mod;
           mod = new SmallInteger(mod);
-        } else
-          mod = new BigInteger(mod, mSign);
+        } else mod = new BigInteger(mod, mSign);
         return [quotient, mod];
       }
       BigInteger.prototype.divmod = function(v) {
@@ -756,19 +702,14 @@ var require_BigInteger = __commonJS({
       SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
       BigInteger.prototype.pow = function(v) {
         var n = parseValue(v), a = this.value, b = n.value, value, x, y;
-        if (b === 0)
-          return Integer[1];
-        if (a === 0)
-          return Integer[0];
-        if (a === 1)
-          return Integer[1];
-        if (a === -1)
-          return n.isEven() ? Integer[1] : Integer[-1];
+        if (b === 0) return Integer[1];
+        if (a === 0) return Integer[0];
+        if (a === 1) return Integer[1];
+        if (a === -1) return n.isEven() ? Integer[1] : Integer[-1];
         if (n.sign) {
           return Integer[0];
         }
-        if (!n.isSmall)
-          throw new Error("The exponent " + n.toString() + " is too large.");
+        if (!n.isSmall) throw new Error("The exponent " + n.toString() + " is too large.");
         if (this.isSmall) {
           if (isPrecise(value = Math.pow(a, b)))
             return new SmallInteger(truncate(value));
@@ -780,8 +721,7 @@ var require_BigInteger = __commonJS({
             y = y.times(x);
             --b;
           }
-          if (b === 0)
-            break;
+          if (b === 0) break;
           b /= 2;
           x = x.square();
         }
@@ -792,16 +732,11 @@ var require_BigInteger = __commonJS({
         var n = parseValue(v);
         var a = this.value, b = n.value;
         var _0 = BigInt(0), _1 = BigInt(1), _2 = BigInt(2);
-        if (b === _0)
-          return Integer[1];
-        if (a === _0)
-          return Integer[0];
-        if (a === _1)
-          return Integer[1];
-        if (a === BigInt(-1))
-          return n.isEven() ? Integer[1] : Integer[-1];
-        if (n.isNegative())
-          return new NativeBigInt(_0);
+        if (b === _0) return Integer[1];
+        if (a === _0) return Integer[0];
+        if (a === _1) return Integer[1];
+        if (a === BigInt(-1)) return n.isEven() ? Integer[1] : Integer[-1];
+        if (n.isNegative()) return new NativeBigInt(_0);
         var x = this;
         var y = Integer[1];
         while (true) {
@@ -809,8 +744,7 @@ var require_BigInteger = __commonJS({
             y = y.times(x);
             --b;
           }
-          if (b === _0)
-            break;
+          if (b === _0) break;
           b /= _2;
           x = x.square();
         }
@@ -819,18 +753,15 @@ var require_BigInteger = __commonJS({
       BigInteger.prototype.modPow = function(exp, mod) {
         exp = parseValue(exp);
         mod = parseValue(mod);
-        if (mod.isZero())
-          throw new Error("Cannot take modPow with modulus 0");
+        if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
         var r = Integer[1], base = this.mod(mod);
         if (exp.isNegative()) {
           exp = exp.multiply(Integer[-1]);
           base = base.modInv(mod);
         }
         while (exp.isPositive()) {
-          if (base.isZero())
-            return Integer[0];
-          if (exp.isOdd())
-            r = r.multiply(base).mod(mod);
+          if (base.isZero()) return Integer[0];
+          if (exp.isOdd()) r = r.multiply(base).mod(mod);
           exp = exp.divide(2);
           base = base.square().mod(mod);
         }
@@ -842,15 +773,13 @@ var require_BigInteger = __commonJS({
           return a.length > b.length ? 1 : -1;
         }
         for (var i2 = a.length - 1; i2 >= 0; i2--) {
-          if (a[i2] !== b[i2])
-            return a[i2] > b[i2] ? 1 : -1;
+          if (a[i2] !== b[i2]) return a[i2] > b[i2] ? 1 : -1;
         }
         return 0;
       }
       BigInteger.prototype.compareAbs = function(v) {
         var n = parseValue(v), a = this.value, b = n.value;
-        if (n.isSmall)
-          return 1;
+        if (n.isSmall) return 1;
         return compareAbs(a, b);
       };
       SmallInteger.prototype.compareAbs = function(v) {
@@ -990,52 +919,38 @@ var require_BigInteger = __commonJS({
       };
       BigInteger.prototype.isDivisibleBy = function(v) {
         var n = parseValue(v);
-        if (n.isZero())
-          return false;
-        if (n.isUnit())
-          return true;
-        if (n.compareAbs(2) === 0)
-          return this.isEven();
+        if (n.isZero()) return false;
+        if (n.isUnit()) return true;
+        if (n.compareAbs(2) === 0) return this.isEven();
         return this.mod(n).isZero();
       };
       NativeBigInt.prototype.isDivisibleBy = SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
       function isBasicPrime(v) {
         var n = v.abs();
-        if (n.isUnit())
-          return false;
-        if (n.equals(2) || n.equals(3) || n.equals(5))
-          return true;
-        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5))
-          return false;
-        if (n.lesser(49))
-          return true;
+        if (n.isUnit()) return false;
+        if (n.equals(2) || n.equals(3) || n.equals(5)) return true;
+        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5)) return false;
+        if (n.lesser(49)) return true;
       }
       function millerRabinTest(n, a) {
         var nPrev = n.prev(), b = nPrev, r = 0, d, t, i2, x;
-        while (b.isEven())
-          b = b.divide(2), r++;
-        next:
-          for (i2 = 0; i2 < a.length; i2++) {
-            if (n.lesser(a[i2]))
-              continue;
-            x = bigInt3(a[i2]).modPow(b, n);
-            if (x.isUnit() || x.equals(nPrev))
-              continue;
-            for (d = r - 1; d != 0; d--) {
-              x = x.square().mod(n);
-              if (x.isUnit())
-                return false;
-              if (x.equals(nPrev))
-                continue next;
-            }
-            return false;
+        while (b.isEven()) b = b.divide(2), r++;
+        next: for (i2 = 0; i2 < a.length; i2++) {
+          if (n.lesser(a[i2])) continue;
+          x = bigInt3(a[i2]).modPow(b, n);
+          if (x.isUnit() || x.equals(nPrev)) continue;
+          for (d = r - 1; d != 0; d--) {
+            x = x.square().mod(n);
+            if (x.isUnit()) return false;
+            if (x.equals(nPrev)) continue next;
           }
+          return false;
+        }
         return true;
       }
       BigInteger.prototype.isPrime = function(strict) {
         var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined2)
-          return isPrime;
+        if (isPrime !== undefined2) return isPrime;
         var n = this.abs();
         var bits = n.bitLength();
         if (bits <= 64)
@@ -1050,8 +965,7 @@ var require_BigInteger = __commonJS({
       NativeBigInt.prototype.isPrime = SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
       BigInteger.prototype.isProbablePrime = function(iterations, rng2) {
         var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined2)
-          return isPrime;
+        if (isPrime !== undefined2) return isPrime;
         var n = this.abs();
         var t = iterations === undefined2 ? 5 : iterations;
         for (var a = [], i2 = 0; i2 < t; i2++) {
@@ -1071,8 +985,7 @@ var require_BigInteger = __commonJS({
           newT = lastT.subtract(q.multiply(newT));
           newR = lastR.subtract(q.multiply(newR));
         }
-        if (!r.isUnit())
-          throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
+        if (!r.isUnit()) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
         if (t.compare(0) === -1) {
           t = t.add(n);
         }
@@ -1091,8 +1004,7 @@ var require_BigInteger = __commonJS({
       };
       SmallInteger.prototype.next = function() {
         var value = this.value;
-        if (value + 1 < MAX_INT)
-          return new SmallInteger(value + 1);
+        if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
         return new BigInteger(MAX_INT_ARR, false);
       };
       NativeBigInt.prototype.next = function() {
@@ -1107,16 +1019,14 @@ var require_BigInteger = __commonJS({
       };
       SmallInteger.prototype.prev = function() {
         var value = this.value;
-        if (value - 1 > -MAX_INT)
-          return new SmallInteger(value - 1);
+        if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
         return new BigInteger(MAX_INT_ARR, true);
       };
       NativeBigInt.prototype.prev = function() {
         return new NativeBigInt(this.value - BigInt(1));
       };
       var powersOfTwo = [1];
-      while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE)
-        powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
+      while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
       var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
       function shift_isSmall(n) {
         return Math.abs(n) <= BASE;
@@ -1126,11 +1036,9 @@ var require_BigInteger = __commonJS({
         if (!shift_isSmall(n)) {
           throw new Error(String(n) + " is too large for shifting.");
         }
-        if (n < 0)
-          return this.shiftRight(-n);
+        if (n < 0) return this.shiftRight(-n);
         var result = this;
-        if (result.isZero())
-          return result;
+        if (result.isZero()) return result;
         while (n >= powers2Length) {
           result = result.multiply(highestPower2);
           n -= powers2Length - 1;
@@ -1144,12 +1052,10 @@ var require_BigInteger = __commonJS({
         if (!shift_isSmall(n)) {
           throw new Error(String(n) + " is too large for shifting.");
         }
-        if (n < 0)
-          return this.shiftLeft(-n);
+        if (n < 0) return this.shiftLeft(-n);
         var result = this;
         while (n >= powers2Length) {
-          if (result.isZero() || result.isNegative() && result.isUnit())
-            return result;
+          if (result.isZero() || result.isNegative() && result.isUnit()) return result;
           remQuo = divModAny(result, highestPower2);
           result = remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
           n -= powers2Length - 1;
@@ -1247,12 +1153,9 @@ var require_BigInteger = __commonJS({
       function gcd(a, b) {
         a = parseValue(a).abs();
         b = parseValue(b).abs();
-        if (a.equals(b))
-          return a;
-        if (a.isZero())
-          return b;
-        if (b.isZero())
-          return a;
+        if (a.equals(b)) return a;
+        if (a.isZero()) return b;
+        if (b.isZero()) return a;
         var c = Integer[1], d, t;
         while (a.isEven() && b.isEven()) {
           d = min(roughLOB(a), roughLOB(b));
@@ -1287,16 +1190,14 @@ var require_BigInteger = __commonJS({
         var usedRNG = rng2 || Math.random;
         var low = min(a, b), high = max(a, b);
         var range = high.subtract(low).add(1);
-        if (range.isSmall)
-          return low.add(Math.floor(usedRNG() * range));
+        if (range.isSmall) return low.add(Math.floor(usedRNG() * range));
         var digits = toBase(range, BASE).value;
         var result = [], restricted = true;
         for (var i2 = 0; i2 < digits.length; i2++) {
-          var top = restricted ? digits[i2] : BASE;
+          var top = restricted ? digits[i2] + (i2 + 1 < digits.length ? digits[i2 + 1] / BASE : 0) : BASE;
           var digit = truncate(usedRNG() * top);
           result.push(digit);
-          if (digit < top)
-            restricted = false;
+          if (digit < digits[i2]) restricted = false;
         }
         return low.add(Integer.fromArray(result, BASE, false));
       }
@@ -1316,12 +1217,10 @@ var require_BigInteger = __commonJS({
         }
         for (i2 = 0; i2 < length; i2++) {
           var c = text[i2];
-          if (c === "-")
-            continue;
+          if (c === "-") continue;
           if (c in alphabetValues) {
             if (alphabetValues[c] >= absBase) {
-              if (c === "1" && absBase === 1)
-                continue;
+              if (c === "1" && absBase === 1) continue;
               throw new Error(c + " is not a valid digit in base " + base + ".");
             }
           }
@@ -1331,16 +1230,14 @@ var require_BigInteger = __commonJS({
         var isNegative = text[0] === "-";
         for (i2 = isNegative ? 1 : 0; i2 < text.length; i2++) {
           var c = text[i2];
-          if (c in alphabetValues)
-            digits.push(parseValue(alphabetValues[c]));
+          if (c in alphabetValues) digits.push(parseValue(alphabetValues[c]));
           else if (c === "<") {
             var start = i2;
             do {
               i2++;
             } while (text[i2] !== ">" && i2 < text.length);
             digits.push(parseValue(text.slice(start + 1, i2)));
-          } else
-            throw new Error(c + " is not a valid character");
+          } else throw new Error(c + " is not a valid character");
         }
         return parseBaseFromArray(digits, base, isNegative);
       };
@@ -1352,7 +1249,7 @@ var require_BigInteger = __commonJS({
         }
         return isNegative ? val.negate() : val;
       }
-      function stringify2(digit, alphabet) {
+      function stringify(digit, alphabet) {
         alphabet = alphabet || DEFAULT_ALPHABET;
         if (digit < alphabet.length) {
           return alphabet[digit];
@@ -1362,13 +1259,11 @@ var require_BigInteger = __commonJS({
       function toBase(n, base) {
         base = bigInt3(base);
         if (base.isZero()) {
-          if (n.isZero())
-            return { value: [0], isNegative: false };
+          if (n.isZero()) return { value: [0], isNegative: false };
           throw new Error("Cannot convert nonzero numbers to base 0.");
         }
         if (base.equals(-1)) {
-          if (n.isZero())
-            return { value: [0], isNegative: false };
+          if (n.isZero()) return { value: [0], isNegative: false };
           if (n.isNegative())
             return {
               value: [].concat.apply(
@@ -1390,8 +1285,7 @@ var require_BigInteger = __commonJS({
           n = n.abs();
         }
         if (base.isUnit()) {
-          if (n.isZero())
-            return { value: [0], isNegative: false };
+          if (n.isZero()) return { value: [0], isNegative: false };
           return {
             value: Array.apply(null, Array(n.toJSNumber())).map(Number.prototype.valueOf, 1),
             isNegative: neg
@@ -1415,7 +1309,7 @@ var require_BigInteger = __commonJS({
       function toBaseString(n, base, alphabet) {
         var arr = toBase(n, base);
         return (arr.isNegative ? "-" : "") + arr.value.map(function(x) {
-          return stringify2(x, alphabet);
+          return stringify(x, alphabet);
         }).join("");
       }
       BigInteger.prototype.toArray = function(radix) {
@@ -1428,10 +1322,8 @@ var require_BigInteger = __commonJS({
         return toBase(this, radix);
       };
       BigInteger.prototype.toString = function(radix, alphabet) {
-        if (radix === undefined2)
-          radix = 10;
-        if (radix !== 10)
-          return toBaseString(this, radix, alphabet);
+        if (radix === undefined2) radix = 10;
+        if (radix !== 10 || alphabet) return toBaseString(this, radix, alphabet);
         var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
         while (--l >= 0) {
           digit = String(v[l]);
@@ -1441,10 +1333,8 @@ var require_BigInteger = __commonJS({
         return sign + str;
       };
       SmallInteger.prototype.toString = function(radix, alphabet) {
-        if (radix === undefined2)
-          radix = 10;
-        if (radix != 10)
-          return toBaseString(this, radix, alphabet);
+        if (radix === undefined2) radix = 10;
+        if (radix != 10 || alphabet) return toBaseString(this, radix, alphabet);
         return String(this.value);
       };
       NativeBigInt.prototype.toString = SmallInteger.prototype.toString;
@@ -1470,32 +1360,26 @@ var require_BigInteger = __commonJS({
           throw new Error("Invalid integer: " + v);
         }
         var sign = v[0] === "-";
-        if (sign)
-          v = v.slice(1);
+        if (sign) v = v.slice(1);
         var split = v.split(/e/i);
-        if (split.length > 2)
-          throw new Error("Invalid integer: " + split.join("e"));
+        if (split.length > 2) throw new Error("Invalid integer: " + split.join("e"));
         if (split.length === 2) {
           var exp = split[1];
-          if (exp[0] === "+")
-            exp = exp.slice(1);
+          if (exp[0] === "+") exp = exp.slice(1);
           exp = +exp;
-          if (exp !== truncate(exp) || !isPrecise(exp))
-            throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
+          if (exp !== truncate(exp) || !isPrecise(exp)) throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
           var text = split[0];
           var decimalPlace = text.indexOf(".");
           if (decimalPlace >= 0) {
             exp -= text.length - decimalPlace - 1;
             text = text.slice(0, decimalPlace) + text.slice(decimalPlace + 1);
           }
-          if (exp < 0)
-            throw new Error("Cannot include negative exponent part for integers");
+          if (exp < 0) throw new Error("Cannot include negative exponent part for integers");
           text += new Array(exp + 1).join("0");
           v = text;
         }
         var isValid2 = /^([0-9][0-9]*)$/.test(v);
-        if (!isValid2)
-          throw new Error("Invalid integer: " + v);
+        if (!isValid2) throw new Error("Invalid integer: " + v);
         if (supportsNativeBigInt) {
           return new NativeBigInt(BigInt(sign ? "-" + v : v));
         }
@@ -1503,8 +1387,7 @@ var require_BigInteger = __commonJS({
         while (max2 > 0) {
           r.push(+v.slice(min2, max2));
           min2 -= l;
-          if (min2 < 0)
-            min2 = 0;
+          if (min2 < 0) min2 = 0;
           max2 -= l;
         }
         trim(r);
@@ -1515,8 +1398,7 @@ var require_BigInteger = __commonJS({
           return new NativeBigInt(BigInt(v));
         }
         if (isPrecise(v)) {
-          if (v !== truncate(v))
-            throw new Error(v + " is not an integer.");
+          if (v !== truncate(v)) throw new Error(v + " is not an integer.");
           return new SmallInteger(v);
         }
         return parseStringValue(v.toString());
@@ -1535,8 +1417,7 @@ var require_BigInteger = __commonJS({
       }
       for (var i = 0; i < 1e3; i++) {
         Integer[i] = parseValue(i);
-        if (i > 0)
-          Integer[-i] = parseValue(-i);
+        if (i > 0) Integer[-i] = parseValue(-i);
       }
       Integer.one = Integer[1];
       Integer.zero = Integer[0];
@@ -1609,31 +1490,25 @@ var require_decimal = __commonJS({
       }, external = true, decimalError = "[DecimalError] ", invalidArgument = decimalError + "Invalid argument: ", exponentOutOfRange = decimalError + "Exponent out of range: ", mathfloor = Math.floor, mathpow = Math.pow, isDecimal = /^(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i, ONE, BASE = 1e7, LOG_BASE = 7, MAX_SAFE_INTEGER = 9007199254740991, MAX_E = mathfloor(MAX_SAFE_INTEGER / LOG_BASE), P = {};
       P.absoluteValue = P.abs = function() {
         var x = new this.constructor(this);
-        if (x.s)
-          x.s = 1;
+        if (x.s) x.s = 1;
         return x;
       };
       P.comparedTo = P.cmp = function(y) {
         var i, j, xdL, ydL, x = this;
         y = new x.constructor(y);
-        if (x.s !== y.s)
-          return x.s || -y.s;
-        if (x.e !== y.e)
-          return x.e > y.e ^ x.s < 0 ? 1 : -1;
+        if (x.s !== y.s) return x.s || -y.s;
+        if (x.e !== y.e) return x.e > y.e ^ x.s < 0 ? 1 : -1;
         xdL = x.d.length;
         ydL = y.d.length;
         for (i = 0, j = xdL < ydL ? xdL : ydL; i < j; ++i) {
-          if (x.d[i] !== y.d[i])
-            return x.d[i] > y.d[i] ^ x.s < 0 ? 1 : -1;
+          if (x.d[i] !== y.d[i]) return x.d[i] > y.d[i] ^ x.s < 0 ? 1 : -1;
         }
         return xdL === ydL ? 0 : xdL > ydL ^ x.s < 0 ? 1 : -1;
       };
       P.decimalPlaces = P.dp = function() {
         var x = this, w = x.d.length - 1, dp = (w - x.e) * LOG_BASE;
         w = x.d[w];
-        if (w)
-          for (; w % 10 == 0; w /= 10)
-            dp--;
+        if (w) for (; w % 10 == 0; w /= 10) dp--;
         return dp < 0 ? 0 : dp;
       };
       P.dividedBy = P.div = function(y) {
@@ -1679,13 +1554,10 @@ var require_decimal = __commonJS({
           base = new Ctor(10);
         } else {
           base = new Ctor(base);
-          if (base.s < 1 || base.eq(ONE))
-            throw Error(decimalError + "NaN");
+          if (base.s < 1 || base.eq(ONE)) throw Error(decimalError + "NaN");
         }
-        if (x.s < 1)
-          throw Error(decimalError + (x.s ? "NaN" : "-Infinity"));
-        if (x.eq(ONE))
-          return new Ctor(0);
+        if (x.s < 1) throw Error(decimalError + (x.s ? "NaN" : "-Infinity"));
+        if (x.eq(ONE)) return new Ctor(0);
         external = false;
         r = divide(ln(x, wpr), ln(base, wpr), wpr);
         external = true;
@@ -1699,10 +1571,8 @@ var require_decimal = __commonJS({
       P.modulo = P.mod = function(y) {
         var q, x = this, Ctor = x.constructor, pr = Ctor.precision;
         y = new Ctor(y);
-        if (!y.s)
-          throw Error(decimalError + "NaN");
-        if (!x.s)
-          return round(new Ctor(x), pr);
+        if (!y.s) throw Error(decimalError + "NaN");
+        if (!x.s) return round(new Ctor(x), pr);
         external = false;
         q = divide(x, y, 0, 1).times(y);
         external = true;
@@ -1726,25 +1596,21 @@ var require_decimal = __commonJS({
       };
       P.precision = P.sd = function(z2) {
         var e, sd, w, x = this;
-        if (z2 !== void 0 && z2 !== !!z2 && z2 !== 1 && z2 !== 0)
-          throw Error(invalidArgument + z2);
+        if (z2 !== void 0 && z2 !== !!z2 && z2 !== 1 && z2 !== 0) throw Error(invalidArgument + z2);
         e = getBase10Exponent(x) + 1;
         w = x.d.length - 1;
         sd = w * LOG_BASE + 1;
         w = x.d[w];
         if (w) {
-          for (; w % 10 == 0; w /= 10)
-            sd--;
-          for (w = x.d[0]; w >= 10; w /= 10)
-            sd++;
+          for (; w % 10 == 0; w /= 10) sd--;
+          for (w = x.d[0]; w >= 10; w /= 10) sd++;
         }
         return z2 && e > sd ? e : sd;
       };
       P.squareRoot = P.sqrt = function() {
         var e, n, pr, r, s, t, wpr, x = this, Ctor = x.constructor;
         if (x.s < 1) {
-          if (!x.s)
-            return new Ctor(0);
+          if (!x.s) return new Ctor(0);
           throw Error(decimalError + "NaN");
         }
         e = getBase10Exponent(x);
@@ -1752,12 +1618,11 @@ var require_decimal = __commonJS({
         s = Math.sqrt(+x);
         if (s == 0 || s == 1 / 0) {
           n = digitsToString(x.d);
-          if ((n.length + e) % 2 == 0)
-            n += "0";
+          if ((n.length + e) % 2 == 0) n += "0";
           s = Math.sqrt(n);
           e = mathfloor((e + 1) / 2) - (e < 0 || e % 2);
           if (s == 1 / 0) {
-            n = "1e" + e;
+            n = "5e" + e;
           } else {
             n = s.toExponential();
             n = n.slice(0, n.indexOf("e") + 1) + e;
@@ -1790,8 +1655,7 @@ var require_decimal = __commonJS({
       };
       P.times = P.mul = function(y) {
         var carry, e, i, k, r, rL, t, xdL, ydL, x = this, Ctor = x.constructor, xd = x.d, yd = (y = new Ctor(y)).d;
-        if (!x.s || !y.s)
-          return new Ctor(0);
+        if (!x.s || !y.s) return new Ctor(0);
         y.s *= x.s;
         e = x.e + y.e;
         xdL = xd.length;
@@ -1806,8 +1670,7 @@ var require_decimal = __commonJS({
         }
         r = [];
         rL = xdL + ydL;
-        for (i = rL; i--; )
-          r.push(0);
+        for (i = rL; i--; ) r.push(0);
         for (i = ydL; --i >= 0; ) {
           carry = 0;
           for (k = xdL + i; k > i; ) {
@@ -1817,12 +1680,9 @@ var require_decimal = __commonJS({
           }
           r[k] = (r[k] + carry) % BASE | 0;
         }
-        for (; !r[--rL]; )
-          r.pop();
-        if (carry)
-          ++e;
-        else
-          r.shift();
+        for (; !r[--rL]; ) r.pop();
+        if (carry) ++e;
+        else r.shift();
         y.d = r;
         y.e = e;
         return external ? round(y, Ctor.precision) : y;
@@ -1830,13 +1690,10 @@ var require_decimal = __commonJS({
       P.toDecimalPlaces = P.todp = function(dp, rm) {
         var x = this, Ctor = x.constructor;
         x = new Ctor(x);
-        if (dp === void 0)
-          return x;
+        if (dp === void 0) return x;
         checkInt32(dp, 0, MAX_DIGITS);
-        if (rm === void 0)
-          rm = Ctor.rounding;
-        else
-          checkInt32(rm, 0, 8);
+        if (rm === void 0) rm = Ctor.rounding;
+        else checkInt32(rm, 0, 8);
         return round(x, dp + getBase10Exponent(x) + 1, rm);
       };
       P.toExponential = function(dp, rm) {
@@ -1845,10 +1702,8 @@ var require_decimal = __commonJS({
           str = toString(x, true);
         } else {
           checkInt32(dp, 0, MAX_DIGITS);
-          if (rm === void 0)
-            rm = Ctor.rounding;
-          else
-            checkInt32(rm, 0, 8);
+          if (rm === void 0) rm = Ctor.rounding;
+          else checkInt32(rm, 0, 8);
           x = round(new Ctor(x), dp + 1, rm);
           str = toString(x, true, dp + 1);
         }
@@ -1856,13 +1711,10 @@ var require_decimal = __commonJS({
       };
       P.toFixed = function(dp, rm) {
         var str, y, x = this, Ctor = x.constructor;
-        if (dp === void 0)
-          return toString(x);
+        if (dp === void 0) return toString(x);
         checkInt32(dp, 0, MAX_DIGITS);
-        if (rm === void 0)
-          rm = Ctor.rounding;
-        else
-          checkInt32(rm, 0, 8);
+        if (rm === void 0) rm = Ctor.rounding;
+        else checkInt32(rm, 0, 8);
         y = round(new Ctor(x), dp + getBase10Exponent(x) + 1, rm);
         str = toString(y.abs(), false, dp + getBase10Exponent(y) + 1);
         return x.isneg() && !x.isZero() ? "-" + str : str;
@@ -1876,26 +1728,21 @@ var require_decimal = __commonJS({
       };
       P.toPower = P.pow = function(y) {
         var e, k, pr, r, sign, yIsInt, x = this, Ctor = x.constructor, guard = 12, yn = +(y = new Ctor(y));
-        if (!y.s)
-          return new Ctor(ONE);
+        if (!y.s) return new Ctor(ONE);
         x = new Ctor(x);
         if (!x.s) {
-          if (y.s < 1)
-            throw Error(decimalError + "Infinity");
+          if (y.s < 1) throw Error(decimalError + "Infinity");
           return x;
         }
-        if (x.eq(ONE))
-          return x;
+        if (x.eq(ONE)) return x;
         pr = Ctor.precision;
-        if (y.eq(ONE))
-          return round(x, pr);
+        if (y.eq(ONE)) return round(x, pr);
         e = y.e;
         k = y.d.length - 1;
         yIsInt = e >= k;
         sign = x.s;
         if (!yIsInt) {
-          if (sign < 0)
-            throw Error(decimalError + "NaN");
+          if (sign < 0) throw Error(decimalError + "NaN");
         } else if ((k = yn < 0 ? -yn : yn) <= MAX_SAFE_INTEGER) {
           r = new Ctor(ONE);
           e = Math.ceil(pr / LOG_BASE + 4);
@@ -1906,8 +1753,7 @@ var require_decimal = __commonJS({
               truncate(r.d, e);
             }
             k = mathfloor(k / 2);
-            if (k === 0)
-              break;
+            if (k === 0) break;
             x = x.times(x);
             truncate(x.d, e);
           }
@@ -1930,10 +1776,8 @@ var require_decimal = __commonJS({
           str = toString(x, e <= Ctor.toExpNeg || e >= Ctor.toExpPos);
         } else {
           checkInt32(sd, 1, MAX_DIGITS);
-          if (rm === void 0)
-            rm = Ctor.rounding;
-          else
-            checkInt32(rm, 0, 8);
+          if (rm === void 0) rm = Ctor.rounding;
+          else checkInt32(rm, 0, 8);
           x = round(new Ctor(x), sd, rm);
           e = getBase10Exponent(x);
           str = toString(x, sd <= e || e <= Ctor.toExpNeg, sd);
@@ -1947,10 +1791,8 @@ var require_decimal = __commonJS({
           rm = Ctor.rounding;
         } else {
           checkInt32(sd, 1, MAX_DIGITS);
-          if (rm === void 0)
-            rm = Ctor.rounding;
-          else
-            checkInt32(rm, 0, 8);
+          if (rm === void 0) rm = Ctor.rounding;
+          else checkInt32(rm, 0, 8);
         }
         return round(new Ctor(x), sd, rm);
       };
@@ -1961,8 +1803,7 @@ var require_decimal = __commonJS({
       function add(x, y) {
         var carry, d, e, i, k, len, xd, yd, Ctor = x.constructor, pr = Ctor.precision;
         if (!x.s || !y.s) {
-          if (!y.s)
-            y = new Ctor(x);
+          if (!y.s) y = new Ctor(x);
           return external ? round(y, pr) : y;
         }
         xd = x.d;
@@ -1988,8 +1829,7 @@ var require_decimal = __commonJS({
             d.length = 1;
           }
           d.reverse();
-          for (; i--; )
-            d.push(0);
+          for (; i--; ) d.push(0);
           d.reverse();
         }
         len = xd.length;
@@ -2008,8 +1848,7 @@ var require_decimal = __commonJS({
           xd.unshift(carry);
           ++e;
         }
-        for (len = xd.length; xd[--len] == 0; )
-          xd.pop();
+        for (len = xd.length; xd[--len] == 0; ) xd.pop();
         y.d = xd;
         y.e = e;
         return external ? round(y, pr) : y;
@@ -2026,20 +1865,17 @@ var require_decimal = __commonJS({
           for (i = 1; i < indexOfLastWord; i++) {
             ws = d[i] + "";
             k = LOG_BASE - ws.length;
-            if (k)
-              str += getZeroString(k);
+            if (k) str += getZeroString(k);
             str += ws;
           }
           w = d[i];
           ws = w + "";
           k = LOG_BASE - ws.length;
-          if (k)
-            str += getZeroString(k);
+          if (k) str += getZeroString(k);
         } else if (w === 0) {
           return "0";
         }
-        for (; w % 10 === 0; )
-          w /= 10;
+        for (; w % 10 === 0; ) w /= 10;
         return str + w;
       }
       var divide = /* @__PURE__ */ function() {
@@ -2050,8 +1886,7 @@ var require_decimal = __commonJS({
             x[i] = temp % BASE | 0;
             carry = temp / BASE | 0;
           }
-          if (carry)
-            x.unshift(carry);
+          if (carry) x.unshift(carry);
           return x;
         }
         function compare(a, b, aL, bL) {
@@ -2075,24 +1910,19 @@ var require_decimal = __commonJS({
             i = a[aL] < b[aL] ? 1 : 0;
             a[aL] = i * BASE + a[aL] - b[aL];
           }
-          for (; !a[0] && a.length > 1; )
-            a.shift();
+          for (; !a[0] && a.length > 1; ) a.shift();
         }
         return function(x, y, pr, dp) {
           var cmp, e, i, k, prod, prodL, q, qd, rem, remL, rem0, sd, t, xi, xL, yd0, yL, yz, Ctor = x.constructor, sign = x.s == y.s ? 1 : -1, xd = x.d, yd = y.d;
-          if (!x.s)
-            return new Ctor(x);
-          if (!y.s)
-            throw Error(decimalError + "Division by zero");
+          if (!x.s) return new Ctor(x);
+          if (!y.s) throw Error(decimalError + "Division by zero");
           e = x.e - y.e;
           yL = yd.length;
           xL = xd.length;
           q = new Ctor(sign);
           qd = q.d = [];
-          for (i = 0; yd[i] == (xd[i] || 0); )
-            ++i;
-          if (yd[i] > (xd[i] || 0))
-            --e;
+          for (i = 0; yd[i] == (xd[i] || 0); ) ++i;
+          if (yd[i] > (xd[i] || 0)) --e;
           if (pr == null) {
             sd = pr = Ctor.precision;
           } else if (dp) {
@@ -2100,8 +1930,7 @@ var require_decimal = __commonJS({
           } else {
             sd = pr;
           }
-          if (sd < 0)
-            return new Ctor(0);
+          if (sd < 0) return new Ctor(0);
           sd = sd / LOG_BASE + 2 | 0;
           i = 0;
           if (yL == 1) {
@@ -2124,24 +1953,20 @@ var require_decimal = __commonJS({
             xi = yL;
             rem = xd.slice(0, yL);
             remL = rem.length;
-            for (; remL < yL; )
-              rem[remL++] = 0;
+            for (; remL < yL; ) rem[remL++] = 0;
             yz = yd.slice();
             yz.unshift(0);
             yd0 = yd[0];
-            if (yd[1] >= BASE / 2)
-              ++yd0;
+            if (yd[1] >= BASE / 2) ++yd0;
             do {
               k = 0;
               cmp = compare(yd, rem, yL, remL);
               if (cmp < 0) {
                 rem0 = rem[0];
-                if (yL != remL)
-                  rem0 = rem0 * BASE + (rem[1] || 0);
+                if (yL != remL) rem0 = rem0 * BASE + (rem[1] || 0);
                 k = rem0 / yd0 | 0;
                 if (k > 1) {
-                  if (k >= BASE)
-                    k = BASE - 1;
+                  if (k >= BASE) k = BASE - 1;
                   prod = multiplyInteger(yd, k);
                   prodL = prod.length;
                   remL = rem.length;
@@ -2151,13 +1976,11 @@ var require_decimal = __commonJS({
                     subtract2(prod, yL < prodL ? yz : yd, prodL);
                   }
                 } else {
-                  if (k == 0)
-                    cmp = k = 1;
+                  if (k == 0) cmp = k = 1;
                   prod = yd.slice();
                 }
                 prodL = prod.length;
-                if (prodL < remL)
-                  prod.unshift(0);
+                if (prodL < remL) prod.unshift(0);
                 subtract2(rem, prod, remL);
                 if (cmp == -1) {
                   remL = rem.length;
@@ -2181,18 +2004,15 @@ var require_decimal = __commonJS({
               }
             } while ((xi++ < xL || rem[0] !== void 0) && sd--);
           }
-          if (!qd[0])
-            qd.shift();
+          if (!qd[0]) qd.shift();
           q.e = e;
           return round(q, dp ? pr + getBase10Exponent(q) + 1 : pr);
         };
       }();
       function exp(x, sd) {
         var denominator, guard, pow, sum, t, wpr, i = 0, k = 0, Ctor = x.constructor, pr = Ctor.precision;
-        if (getBase10Exponent(x) > 16)
-          throw Error(exponentOutOfRange + getBase10Exponent(x));
-        if (!x.s)
-          return new Ctor(ONE);
+        if (getBase10Exponent(x) > 16) throw Error(exponentOutOfRange + getBase10Exponent(x));
+        if (!x.s) return new Ctor(ONE);
         if (sd == null) {
           external = false;
           wpr = pr;
@@ -2213,8 +2033,7 @@ var require_decimal = __commonJS({
           denominator = denominator.times(++i);
           t = sum.plus(divide(pow, denominator, wpr));
           if (digitsToString(t.d).slice(0, wpr) === digitsToString(sum.d).slice(0, wpr)) {
-            while (k--)
-              sum = round(sum.times(sum), wpr);
+            while (k--) sum = round(sum.times(sum), wpr);
             Ctor.precision = pr;
             return sd == null ? (external = true, round(sum, pr)) : sum;
           }
@@ -2223,31 +2042,26 @@ var require_decimal = __commonJS({
       }
       function getBase10Exponent(x) {
         var e = x.e * LOG_BASE, w = x.d[0];
-        for (; w >= 10; w /= 10)
-          e++;
+        for (; w >= 10; w /= 10) e++;
         return e;
       }
       function getLn10(Ctor, sd, pr) {
         if (sd > Ctor.LN10.sd()) {
           external = true;
-          if (pr)
-            Ctor.precision = pr;
+          if (pr) Ctor.precision = pr;
           throw Error(decimalError + "LN10 precision limit exceeded");
         }
         return round(new Ctor(Ctor.LN10), sd);
       }
       function getZeroString(k) {
         var zs = "";
-        for (; k--; )
-          zs += "0";
+        for (; k--; ) zs += "0";
         return zs;
       }
       function ln(y, sd) {
         var c, c0, denominator, e, numerator, sum, t, wpr, x2, n = 1, guard = 10, x = y, xd = x.d, Ctor = x.constructor, pr = Ctor.precision;
-        if (x.s < 1)
-          throw Error(decimalError + (x.s ? "NaN" : "-Infinity"));
-        if (x.eq(ONE))
-          return new Ctor(0);
+        if (x.s < 1) throw Error(decimalError + (x.s ? "NaN" : "-Infinity"));
+        if (x.eq(ONE)) return new Ctor(0);
         if (sd == null) {
           external = false;
           wpr = pr;
@@ -2255,8 +2069,7 @@ var require_decimal = __commonJS({
           wpr = sd;
         }
         if (x.eq(10)) {
-          if (sd == null)
-            external = true;
+          if (sd == null) external = true;
           return getLn10(Ctor, wpr);
         }
         wpr += guard;
@@ -2292,8 +2105,7 @@ var require_decimal = __commonJS({
           t = sum.plus(divide(numerator, new Ctor(denominator), wpr));
           if (digitsToString(t.d).slice(0, wpr) === digitsToString(sum.d).slice(0, wpr)) {
             sum = sum.times(2);
-            if (e !== 0)
-              sum = sum.plus(getLn10(Ctor, wpr + 2, pr).times(e + ""));
+            if (e !== 0) sum = sum.plus(getLn10(Ctor, wpr + 2, pr).times(e + ""));
             sum = divide(sum, new Ctor(n), wpr);
             Ctor.precision = pr;
             return sd == null ? (external = true, round(sum, pr)) : sum;
@@ -2304,20 +2116,16 @@ var require_decimal = __commonJS({
       }
       function parseDecimal(x, str) {
         var e, i, len;
-        if ((e = str.indexOf(".")) > -1)
-          str = str.replace(".", "");
+        if ((e = str.indexOf(".")) > -1) str = str.replace(".", "");
         if ((i = str.search(/e/i)) > 0) {
-          if (e < 0)
-            e = i;
+          if (e < 0) e = i;
           e += +str.slice(i + 1);
           str = str.substring(0, i);
         } else if (e < 0) {
           e = str.length;
         }
-        for (i = 0; str.charCodeAt(i) === 48; )
-          ++i;
-        for (len = str.length; str.charCodeAt(len - 1) === 48; )
-          --len;
+        for (i = 0; str.charCodeAt(i) === 48; ) ++i;
+        for (len = str.length; str.charCodeAt(len - 1) === 48; ) --len;
         str = str.slice(i, len);
         if (str) {
           len -= i;
@@ -2325,23 +2133,18 @@ var require_decimal = __commonJS({
           x.e = mathfloor(e / LOG_BASE);
           x.d = [];
           i = (e + 1) % LOG_BASE;
-          if (e < 0)
-            i += LOG_BASE;
+          if (e < 0) i += LOG_BASE;
           if (i < len) {
-            if (i)
-              x.d.push(+str.slice(0, i));
-            for (len -= LOG_BASE; i < len; )
-              x.d.push(+str.slice(i, i += LOG_BASE));
+            if (i) x.d.push(+str.slice(0, i));
+            for (len -= LOG_BASE; i < len; ) x.d.push(+str.slice(i, i += LOG_BASE));
             str = str.slice(i);
             i = LOG_BASE - str.length;
           } else {
             i -= len;
           }
-          for (; i--; )
-            str += "0";
+          for (; i--; ) str += "0";
           x.d.push(+str);
-          if (external && (x.e > MAX_E || x.e < -MAX_E))
-            throw Error(exponentOutOfRange + e);
+          if (external && (x.e > MAX_E || x.e < -MAX_E)) throw Error(exponentOutOfRange + e);
         } else {
           x.s = 0;
           x.e = 0;
@@ -2351,8 +2154,7 @@ var require_decimal = __commonJS({
       }
       function round(x, sd, rm) {
         var i, j, k, n, rd, doRound, w, xdi, xd = x.d;
-        for (n = 1, k = xd[0]; k >= 10; k /= 10)
-          n++;
+        for (n = 1, k = xd[0]; k >= 10; k /= 10) n++;
         i = sd - n;
         if (i < 0) {
           i += LOG_BASE;
@@ -2361,11 +2163,9 @@ var require_decimal = __commonJS({
         } else {
           xdi = Math.ceil((i + 1) / LOG_BASE);
           k = xd.length;
-          if (xdi >= k)
-            return x;
+          if (xdi >= k) return x;
           w = k = xd[xdi];
-          for (n = 1; k >= 10; k /= 10)
-            n++;
+          for (n = 1; k >= 10; k /= 10) n++;
           i %= LOG_BASE;
           j = i - LOG_BASE + n;
         }
@@ -2408,15 +2208,13 @@ var require_decimal = __commonJS({
               break;
             } else {
               xd[xdi] += k;
-              if (xd[xdi] != BASE)
-                break;
+              if (xd[xdi] != BASE) break;
               xd[xdi--] = 0;
               k = 1;
             }
           }
         }
-        for (i = xd.length; xd[--i] === 0; )
-          xd.pop();
+        for (i = xd.length; xd[--i] === 0; ) xd.pop();
         if (external && (x.e > MAX_E || x.e < -MAX_E)) {
           throw Error(exponentOutOfRange + getBase10Exponent(x));
         }
@@ -2425,10 +2223,8 @@ var require_decimal = __commonJS({
       function subtract(x, y) {
         var d, e, i, j, k, len, xd, xe, xLTy, yd, Ctor = x.constructor, pr = Ctor.precision;
         if (!x.s || !y.s) {
-          if (y.s)
-            y.s = -y.s;
-          else
-            y = new Ctor(x);
+          if (y.s) y.s = -y.s;
+          else y = new Ctor(x);
           return external ? round(y, pr) : y;
         }
         xd = x.d;
@@ -2454,15 +2250,13 @@ var require_decimal = __commonJS({
             d.length = 1;
           }
           d.reverse();
-          for (i = k; i--; )
-            d.push(0);
+          for (i = k; i--; ) d.push(0);
           d.reverse();
         } else {
           i = xd.length;
           len = yd.length;
           xLTy = i < len;
-          if (xLTy)
-            len = i;
+          if (xLTy) len = i;
           for (i = 0; i < len; i++) {
             if (xd[i] != yd[i]) {
               xLTy = xd[i] < yd[i];
@@ -2478,23 +2272,18 @@ var require_decimal = __commonJS({
           y.s = -y.s;
         }
         len = xd.length;
-        for (i = yd.length - len; i > 0; --i)
-          xd[len++] = 0;
+        for (i = yd.length - len; i > 0; --i) xd[len++] = 0;
         for (i = yd.length; i > k; ) {
           if (xd[--i] < yd[i]) {
-            for (j = i; j && xd[--j] === 0; )
-              xd[j] = BASE - 1;
+            for (j = i; j && xd[--j] === 0; ) xd[j] = BASE - 1;
             --xd[j];
             xd[i] += BASE;
           }
           xd[i] -= yd[i];
         }
-        for (; xd[--len] === 0; )
-          xd.pop();
-        for (; xd[0] === 0; xd.shift())
-          --e;
-        if (!xd[0])
-          return new Ctor(0);
+        for (; xd[--len] === 0; ) xd.pop();
+        for (; xd[0] === 0; xd.shift()) --e;
+        if (!xd[0]) return new Ctor(0);
         y.d = xd;
         y.e = e;
         return external ? round(y, pr) : y;
@@ -2510,18 +2299,14 @@ var require_decimal = __commonJS({
           str = str + (e < 0 ? "e" : "e+") + e;
         } else if (e < 0) {
           str = "0." + getZeroString(-e - 1) + str;
-          if (sd && (k = sd - len) > 0)
-            str += getZeroString(k);
+          if (sd && (k = sd - len) > 0) str += getZeroString(k);
         } else if (e >= len) {
           str += getZeroString(e + 1 - len);
-          if (sd && (k = sd - e - 1) > 0)
-            str = str + "." + getZeroString(k);
+          if (sd && (k = sd - e - 1) > 0) str = str + "." + getZeroString(k);
         } else {
-          if ((k = e + 1) < len)
-            str = str.slice(0, k) + "." + str.slice(k);
+          if ((k = e + 1) < len) str = str.slice(0, k) + "." + str.slice(k);
           if (sd && (k = sd - len) > 0) {
-            if (e + 1 === len)
-              str += ".";
+            if (e + 1 === len) str += ".";
             str += getZeroString(k);
           }
         }
@@ -2537,8 +2322,7 @@ var require_decimal = __commonJS({
         var i, p, ps;
         function Decimal3(value) {
           var x = this;
-          if (!(x instanceof Decimal3))
-            return new Decimal3(value);
+          if (!(x instanceof Decimal3)) return new Decimal3(value);
           x.constructor = Decimal3;
           if (value instanceof Decimal3) {
             x.s = value.s;
@@ -2576,10 +2360,8 @@ var require_decimal = __commonJS({
           } else {
             x.s = 1;
           }
-          if (isDecimal.test(value))
-            parseDecimal(x, value);
-          else
-            throw Error(invalidArgument + value);
+          if (isDecimal.test(value)) parseDecimal(x, value);
+          else throw Error(invalidArgument + value);
         }
         Decimal3.prototype = P;
         Decimal3.ROUND_UP = 0;
@@ -2593,13 +2375,10 @@ var require_decimal = __commonJS({
         Decimal3.ROUND_HALF_FLOOR = 8;
         Decimal3.clone = clone;
         Decimal3.config = Decimal3.set = config;
-        if (obj === void 0)
-          obj = {};
+        if (obj === void 0) obj = {};
         if (obj) {
           ps = ["precision", "rounding", "toExpNeg", "toExpPos", "LN10"];
-          for (i = 0; i < ps.length; )
-            if (!obj.hasOwnProperty(p = ps[i++]))
-              obj[p] = this[p];
+          for (i = 0; i < ps.length; ) if (!obj.hasOwnProperty(p = ps[i++])) obj[p] = this[p];
         }
         Decimal3.config(obj);
         return Decimal3;
@@ -2624,17 +2403,13 @@ var require_decimal = __commonJS({
         ];
         for (i = 0; i < ps.length; i += 3) {
           if ((v = obj[p = ps[i]]) !== void 0) {
-            if (mathfloor(v) === v && v >= ps[i + 1] && v <= ps[i + 2])
-              this[p] = v;
-            else
-              throw Error(invalidArgument + p + ": " + v);
+            if (mathfloor(v) === v && v >= ps[i + 1] && v <= ps[i + 2]) this[p] = v;
+            else throw Error(invalidArgument + p + ": " + v);
           }
         }
         if ((v = obj[p = "LN10"]) !== void 0) {
-          if (v == Math.LN10)
-            this[p] = new this(v);
-          else
-            throw Error(invalidArgument + p + ": " + v);
+          if (v == Math.LN10) this[p] = new this(v);
+          else throw Error(invalidArgument + p + ": " + v);
         }
         return this;
       }
@@ -2811,13 +2586,13 @@ var require_lodash = __commonJS({
     var Map2 = getNative(root, "Map");
     var Promise2 = getNative(root, "Promise");
     var Set2 = getNative(root, "Set");
-    var WeakMap = getNative(root, "WeakMap");
+    var WeakMap2 = getNative(root, "WeakMap");
     var nativeCreate = getNative(Object, "create");
     var dataViewCtorString = toSource(DataView);
     var mapCtorString = toSource(Map2);
     var promiseCtorString = toSource(Promise2);
     var setCtorString = toSource(Set2);
-    var weakMapCtorString = toSource(WeakMap);
+    var weakMapCtorString = toSource(WeakMap2);
     var symbolProto = Symbol2 ? Symbol2.prototype : void 0;
     var symbolValueOf = symbolProto ? symbolProto.valueOf : void 0;
     var symbolToString = symbolProto ? symbolProto.toString : void 0;
@@ -3322,7 +3097,7 @@ var require_lodash = __commonJS({
       return baseIsNative(value) ? value : void 0;
     }
     var getTag = baseGetTag;
-    if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap && getTag(new WeakMap()) != weakMapTag) {
+    if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap2 && getTag(new WeakMap2()) != weakMapTag) {
       getTag = function(value) {
         var result = objectToString.call(value), Ctor = result == objectTag ? value.constructor : void 0, ctorString = Ctor ? toSource(Ctor) : void 0;
         if (ctorString) {
@@ -3516,8 +3291,9 @@ var require_lodash = __commonJS({
   }
 });
 
-// src/Discord.ts
-var import_eventemitter3 = __toESM(require_eventemitter3());
+// node_modules/eventemitter3/index.mjs
+var import_index = __toESM(require_eventemitter3(), 1);
+var eventemitter3_default = import_index.default;
 
 // node_modules/zod/lib/index.mjs
 var util;
@@ -3673,7 +3449,7 @@ var quotelessJson = (obj) => {
   const json = JSON.stringify(obj, null, 2);
   return json.replace(/"([^"]+)":/g, "$1:");
 };
-var ZodError = class extends Error {
+var ZodError = class _ZodError extends Error {
   constructor(issues) {
     super();
     this.issues = [];
@@ -3730,6 +3506,11 @@ var ZodError = class extends Error {
     };
     processError(this);
     return fieldErrors;
+  }
+  static assert(value) {
+    if (!(value instanceof _ZodError)) {
+      throw new Error(`Not a ZodError: ${value}`);
+    }
   }
   toString() {
     return this.message;
@@ -3873,6 +3654,13 @@ var makeIssue = (params) => {
     ...issueData,
     path: fullPath
   };
+  if (issueData.message !== void 0) {
+    return {
+      ...issueData,
+      path: fullPath,
+      message: issueData.message
+    };
+  }
   let errorMessage = "";
   const maps = errorMaps.filter((m) => !!m).slice().reverse();
   for (const map of maps) {
@@ -3881,11 +3669,12 @@ var makeIssue = (params) => {
   return {
     ...issueData,
     path: fullPath,
-    message: issueData.message || errorMessage
+    message: errorMessage
   };
 };
 var EMPTY_PATH = [];
 function addIssueToContext(ctx, issueData) {
+  const overrideMap = getErrorMap();
   const issue = makeIssue({
     issueData,
     data: ctx.data,
@@ -3893,8 +3682,8 @@ function addIssueToContext(ctx, issueData) {
     errorMaps: [
       ctx.common.contextualErrorMap,
       ctx.schemaErrorMap,
-      getErrorMap(),
-      errorMap
+      overrideMap,
+      overrideMap === errorMap ? void 0 : errorMap
       // then global default map
     ].filter((x) => !!x)
   });
@@ -3926,9 +3715,11 @@ var ParseStatus = class _ParseStatus {
   static async mergeObjectAsync(status, pairs) {
     const syncPairs = [];
     for (const pair of pairs) {
+      const key = await pair.key;
+      const value = await pair.value;
       syncPairs.push({
-        key: await pair.key,
-        value: await pair.value
+        key,
+        value
       });
     }
     return _ParseStatus.mergeObjectSync(status, syncPairs);
@@ -3961,11 +3752,24 @@ var isAborted = (x) => x.status === "aborted";
 var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
+function __classPrivateFieldGet(receiver, state, kind, f) {
+  if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+  if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+  return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+}
+function __classPrivateFieldSet(receiver, state, value, kind, f) {
+  if (kind === "m") throw new TypeError("Private method is not writable");
+  if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+  if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+  return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
+}
 var errorUtil;
 (function(errorUtil2) {
   errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
   errorUtil2.toString = (message) => typeof message === "string" ? message : message === null || message === void 0 ? void 0 : message.message;
 })(errorUtil || (errorUtil = {}));
+var _ZodEnum_cache;
+var _ZodNativeEnum_cache;
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -4014,12 +3818,17 @@ function processCreateParams(params) {
   if (errorMap2)
     return { errorMap: errorMap2, description };
   const customMap = (iss, ctx) => {
+    var _a, _b;
+    const { message } = params;
+    if (iss.code === "invalid_enum_value") {
+      return { message: message !== null && message !== void 0 ? message : ctx.defaultError };
+    }
+    if (typeof ctx.data === "undefined") {
+      return { message: (_a = message !== null && message !== void 0 ? message : required_error) !== null && _a !== void 0 ? _a : ctx.defaultError };
+    }
     if (iss.code !== "invalid_type")
       return { message: ctx.defaultError };
-    if (typeof ctx.data === "undefined") {
-      return { message: required_error !== null && required_error !== void 0 ? required_error : ctx.defaultError };
-    }
-    return { message: invalid_type_error !== null && invalid_type_error !== void 0 ? invalid_type_error : ctx.defaultError };
+    return { message: (_b = message !== null && message !== void 0 ? message : invalid_type_error) !== null && _b !== void 0 ? _b : ctx.defaultError };
   };
   return { errorMap: customMap, description };
 }
@@ -4267,40 +4076,45 @@ var ZodType = class {
   }
 };
 var cuidRegex = /^c[^\s-]{8,}$/i;
-var cuid2Regex = /^[a-z][a-z0-9]*$/;
+var cuid2Regex = /^[0-9a-z]+$/;
 var ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/;
 var uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
-var emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_+-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
+var nanoidRegex = /^[a-z0-9_-]{21}$/i;
+var durationRegex = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
+var emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
 var _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
 var emojiRegex;
-var ipv4Regex = /^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))$/;
+var ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
 var ipv6Regex = /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/;
-var datetimeRegex = (args) => {
+var base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+var dateRegexSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+var dateRegex = new RegExp(`^${dateRegexSource}$`);
+function timeRegexSource(args) {
+  let regex = `([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d`;
   if (args.precision) {
-    if (args.offset) {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{${args.precision}}(([+-]\\d{2}(:?\\d{2})?)|Z)$`);
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{${args.precision}}Z$`);
-    }
-  } else if (args.precision === 0) {
-    if (args.offset) {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(([+-]\\d{2}(:?\\d{2})?)|Z)$`);
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$`);
-    }
-  } else {
-    if (args.offset) {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(([+-]\\d{2}(:?\\d{2})?)|Z)$`);
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$`);
-    }
+    regex = `${regex}\\.\\d{${args.precision}}`;
+  } else if (args.precision == null) {
+    regex = `${regex}(\\.\\d+)?`;
   }
-};
-function isValidIP(ip, version) {
-  if ((version === "v4" || !version) && ipv4Regex.test(ip)) {
+  return regex;
+}
+function timeRegex(args) {
+  return new RegExp(`^${timeRegexSource(args)}$`);
+}
+function datetimeRegex(args) {
+  let regex = `${dateRegexSource}T${timeRegexSource(args)}`;
+  const opts = [];
+  opts.push(args.local ? `Z?` : `Z`);
+  if (args.offset)
+    opts.push(`([+-]\\d{2}:?\\d{2})`);
+  regex = `${regex}(${opts.join("|")})`;
+  return new RegExp(`^${regex}$`);
+}
+function isValidIP(ip, version2) {
+  if ((version2 === "v4" || !version2) && ipv4Regex.test(ip)) {
     return true;
   }
-  if ((version === "v6" || !version) && ipv6Regex.test(ip)) {
+  if ((version2 === "v6" || !version2) && ipv6Regex.test(ip)) {
     return true;
   }
   return false;
@@ -4313,15 +4127,11 @@ var ZodString = class _ZodString extends ZodType {
     const parsedType = this._getType(input);
     if (parsedType !== ZodParsedType.string) {
       const ctx2 = this._getOrReturnCtx(input);
-      addIssueToContext(
-        ctx2,
-        {
-          code: ZodIssueCode.invalid_type,
-          expected: ZodParsedType.string,
-          received: ctx2.parsedType
-        }
-        //
-      );
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.string,
+        received: ctx2.parsedType
+      });
       return INVALID;
     }
     const status = new ParseStatus();
@@ -4407,6 +4217,16 @@ var ZodString = class _ZodString extends ZodType {
           ctx = this._getOrReturnCtx(input, ctx);
           addIssueToContext(ctx, {
             validation: "uuid",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "nanoid") {
+        if (!nanoidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "nanoid",
             code: ZodIssueCode.invalid_string,
             message: check.message
           });
@@ -4513,11 +4333,53 @@ var ZodString = class _ZodString extends ZodType {
           });
           status.dirty();
         }
+      } else if (check.kind === "date") {
+        const regex = dateRegex;
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "date",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "time") {
+        const regex = timeRegex(check);
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "time",
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "duration") {
+        if (!durationRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "duration",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
       } else if (check.kind === "ip") {
         if (!isValidIP(input.data, check.version)) {
           ctx = this._getOrReturnCtx(input, ctx);
           addIssueToContext(ctx, {
             validation: "ip",
+            code: ZodIssueCode.invalid_string,
+            message: check.message
+          });
+          status.dirty();
+        }
+      } else if (check.kind === "base64") {
+        if (!base64Regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "base64",
             code: ZodIssueCode.invalid_string,
             message: check.message
           });
@@ -4554,6 +4416,9 @@ var ZodString = class _ZodString extends ZodType {
   uuid(message) {
     return this._addCheck({ kind: "uuid", ...errorUtil.errToObj(message) });
   }
+  nanoid(message) {
+    return this._addCheck({ kind: "nanoid", ...errorUtil.errToObj(message) });
+  }
   cuid(message) {
     return this._addCheck({ kind: "cuid", ...errorUtil.errToObj(message) });
   }
@@ -4563,16 +4428,20 @@ var ZodString = class _ZodString extends ZodType {
   ulid(message) {
     return this._addCheck({ kind: "ulid", ...errorUtil.errToObj(message) });
   }
+  base64(message) {
+    return this._addCheck({ kind: "base64", ...errorUtil.errToObj(message) });
+  }
   ip(options) {
     return this._addCheck({ kind: "ip", ...errorUtil.errToObj(options) });
   }
   datetime(options) {
-    var _a;
+    var _a, _b;
     if (typeof options === "string") {
       return this._addCheck({
         kind: "datetime",
         precision: null,
         offset: false,
+        local: false,
         message: options
       });
     }
@@ -4580,8 +4449,29 @@ var ZodString = class _ZodString extends ZodType {
       kind: "datetime",
       precision: typeof (options === null || options === void 0 ? void 0 : options.precision) === "undefined" ? null : options === null || options === void 0 ? void 0 : options.precision,
       offset: (_a = options === null || options === void 0 ? void 0 : options.offset) !== null && _a !== void 0 ? _a : false,
+      local: (_b = options === null || options === void 0 ? void 0 : options.local) !== null && _b !== void 0 ? _b : false,
       ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
     });
+  }
+  date(message) {
+    return this._addCheck({ kind: "date", message });
+  }
+  time(options) {
+    if (typeof options === "string") {
+      return this._addCheck({
+        kind: "time",
+        precision: null,
+        message: options
+      });
+    }
+    return this._addCheck({
+      kind: "time",
+      precision: typeof (options === null || options === void 0 ? void 0 : options.precision) === "undefined" ? null : options === null || options === void 0 ? void 0 : options.precision,
+      ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
+    });
+  }
+  duration(message) {
+    return this._addCheck({ kind: "duration", ...errorUtil.errToObj(message) });
   }
   regex(regex, message) {
     return this._addCheck({
@@ -4661,6 +4551,15 @@ var ZodString = class _ZodString extends ZodType {
   get isDatetime() {
     return !!this._def.checks.find((ch) => ch.kind === "datetime");
   }
+  get isDate() {
+    return !!this._def.checks.find((ch) => ch.kind === "date");
+  }
+  get isTime() {
+    return !!this._def.checks.find((ch) => ch.kind === "time");
+  }
+  get isDuration() {
+    return !!this._def.checks.find((ch) => ch.kind === "duration");
+  }
   get isEmail() {
     return !!this._def.checks.find((ch) => ch.kind === "email");
   }
@@ -4673,6 +4572,9 @@ var ZodString = class _ZodString extends ZodType {
   get isUUID() {
     return !!this._def.checks.find((ch) => ch.kind === "uuid");
   }
+  get isNANOID() {
+    return !!this._def.checks.find((ch) => ch.kind === "nanoid");
+  }
   get isCUID() {
     return !!this._def.checks.find((ch) => ch.kind === "cuid");
   }
@@ -4684,6 +4586,9 @@ var ZodString = class _ZodString extends ZodType {
   }
   get isIP() {
     return !!this._def.checks.find((ch) => ch.kind === "ip");
+  }
+  get isBase64() {
+    return !!this._def.checks.find((ch) => ch.kind === "base64");
   }
   get minLength() {
     let min = null;
@@ -5574,8 +5479,7 @@ var ZodObject = class _ZodObject extends ZodType {
           });
           status.dirty();
         }
-      } else if (unknownKeys === "strip")
-        ;
+      } else if (unknownKeys === "strip") ;
       else {
         throw new Error(`Internal ZodObject error: invalid unknownKeys value.`);
       }
@@ -5598,9 +5502,10 @@ var ZodObject = class _ZodObject extends ZodType {
         const syncPairs = [];
         for (const pair of pairs) {
           const key = await pair.key;
+          const value = await pair.value;
           syncPairs.push({
             key,
-            value: await pair.value,
+            value,
             alwaysSet: pair.alwaysSet
           });
         }
@@ -5951,15 +5856,25 @@ var getDiscriminator = (type) => {
   } else if (type instanceof ZodEnum) {
     return type.options;
   } else if (type instanceof ZodNativeEnum) {
-    return Object.keys(type.enum);
+    return util.objectValues(type.enum);
   } else if (type instanceof ZodDefault) {
     return getDiscriminator(type._def.innerType);
   } else if (type instanceof ZodUndefined) {
     return [void 0];
   } else if (type instanceof ZodNull) {
     return [null];
+  } else if (type instanceof ZodOptional) {
+    return [void 0, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodNullable) {
+    return [null, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodBranded) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodReadonly) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodCatch) {
+    return getDiscriminator(type._def.innerType);
   } else {
-    return null;
+    return [];
   }
 };
 var ZodDiscriminatedUnion = class _ZodDiscriminatedUnion extends ZodType {
@@ -6019,7 +5934,7 @@ var ZodDiscriminatedUnion = class _ZodDiscriminatedUnion extends ZodType {
     const optionsMap = /* @__PURE__ */ new Map();
     for (const type of options) {
       const discriminatorValues = getDiscriminator(type.shape[discriminator]);
-      if (!discriminatorValues) {
+      if (!discriminatorValues.length) {
         throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
       }
       for (const value of discriminatorValues) {
@@ -6219,7 +6134,8 @@ var ZodRecord = class _ZodRecord extends ZodType {
     for (const key in ctx.data) {
       pairs.push({
         key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
-        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key))
+        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
+        alwaysSet: key in ctx.data
       });
     }
     if (ctx.common.async) {
@@ -6563,6 +6479,10 @@ function createZodEnum(values, params) {
   });
 }
 var ZodEnum = class _ZodEnum extends ZodType {
+  constructor() {
+    super(...arguments);
+    _ZodEnum_cache.set(this, void 0);
+  }
   _parse(input) {
     if (typeof input.data !== "string") {
       const ctx = this._getOrReturnCtx(input);
@@ -6574,7 +6494,10 @@ var ZodEnum = class _ZodEnum extends ZodType {
       });
       return INVALID;
     }
-    if (this._def.values.indexOf(input.data) === -1) {
+    if (!__classPrivateFieldGet(this, _ZodEnum_cache, "f")) {
+      __classPrivateFieldSet(this, _ZodEnum_cache, new Set(this._def.values), "f");
+    }
+    if (!__classPrivateFieldGet(this, _ZodEnum_cache, "f").has(input.data)) {
       const ctx = this._getOrReturnCtx(input);
       const expectedValues = this._def.values;
       addIssueToContext(ctx, {
@@ -6610,15 +6533,26 @@ var ZodEnum = class _ZodEnum extends ZodType {
     }
     return enumValues;
   }
-  extract(values) {
-    return _ZodEnum.create(values);
+  extract(values, newDef = this._def) {
+    return _ZodEnum.create(values, {
+      ...this._def,
+      ...newDef
+    });
   }
-  exclude(values) {
-    return _ZodEnum.create(this.options.filter((opt) => !values.includes(opt)));
+  exclude(values, newDef = this._def) {
+    return _ZodEnum.create(this.options.filter((opt) => !values.includes(opt)), {
+      ...this._def,
+      ...newDef
+    });
   }
 };
+_ZodEnum_cache = /* @__PURE__ */ new WeakMap();
 ZodEnum.create = createZodEnum;
 var ZodNativeEnum = class extends ZodType {
+  constructor() {
+    super(...arguments);
+    _ZodNativeEnum_cache.set(this, void 0);
+  }
   _parse(input) {
     const nativeEnumValues = util.getValidEnumValues(this._def.values);
     const ctx = this._getOrReturnCtx(input);
@@ -6631,7 +6565,10 @@ var ZodNativeEnum = class extends ZodType {
       });
       return INVALID;
     }
-    if (nativeEnumValues.indexOf(input.data) === -1) {
+    if (!__classPrivateFieldGet(this, _ZodNativeEnum_cache, "f")) {
+      __classPrivateFieldSet(this, _ZodNativeEnum_cache, new Set(util.getValidEnumValues(this._def.values)), "f");
+    }
+    if (!__classPrivateFieldGet(this, _ZodNativeEnum_cache, "f").has(input.data)) {
       const expectedValues = util.objectValues(nativeEnumValues);
       addIssueToContext(ctx, {
         received: ctx.data,
@@ -6646,6 +6583,7 @@ var ZodNativeEnum = class extends ZodType {
     return this._def.values;
   }
 };
+_ZodNativeEnum_cache = /* @__PURE__ */ new WeakMap();
 ZodNativeEnum.create = (values, params) => {
   return new ZodNativeEnum({
     values,
@@ -6709,26 +6647,38 @@ var ZodEffects = class extends ZodType {
     checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx);
     if (effect.type === "preprocess") {
       const processed = effect.transform(ctx.data, checkCtx);
-      if (ctx.common.issues.length) {
-        return {
-          status: "dirty",
-          value: ctx.data
-        };
-      }
       if (ctx.common.async) {
-        return Promise.resolve(processed).then((processed2) => {
-          return this._def.schema._parseAsync({
+        return Promise.resolve(processed).then(async (processed2) => {
+          if (status.value === "aborted")
+            return INVALID;
+          const result = await this._def.schema._parseAsync({
             data: processed2,
             path: ctx.path,
             parent: ctx
           });
+          if (result.status === "aborted")
+            return INVALID;
+          if (result.status === "dirty")
+            return DIRTY(result.value);
+          if (status.value === "dirty")
+            return DIRTY(result.value);
+          return result;
         });
       } else {
-        return this._def.schema._parseSync({
+        if (status.value === "aborted")
+          return INVALID;
+        const result = this._def.schema._parseSync({
           data: processed,
           path: ctx.path,
           parent: ctx
         });
+        if (result.status === "aborted")
+          return INVALID;
+        if (result.status === "dirty")
+          return DIRTY(result.value);
+        if (status.value === "dirty")
+          return DIRTY(result.value);
+        return result;
       }
     }
     if (effect.type === "refinement") {
@@ -7017,10 +6967,16 @@ var ZodPipeline = class _ZodPipeline extends ZodType {
 var ZodReadonly = class extends ZodType {
   _parse(input) {
     const result = this._def.innerType._parse(input);
-    if (isValid(result)) {
-      result.value = Object.freeze(result.value);
-    }
-    return result;
+    const freeze = (data) => {
+      if (isValid(data)) {
+        data.value = Object.freeze(data.value);
+      }
+      return data;
+    };
+    return isAsync(result) ? result.then((data) => freeze(data)) : freeze(result);
+  }
+  unwrap() {
+    return this._def.innerType;
   }
 };
 ZodReadonly.create = (type, params) => {
@@ -7030,7 +6986,7 @@ ZodReadonly.create = (type, params) => {
     ...processCreateParams(params)
   });
 };
-var custom = (check, params = {}, fatal) => {
+function custom(check, params = {}, fatal) {
   if (check)
     return ZodAny.create().superRefine((data, ctx) => {
       var _a, _b;
@@ -7042,7 +6998,7 @@ var custom = (check, params = {}, fatal) => {
       }
     });
   return ZodAny.create();
-};
+}
 var late = {
   object: ZodObject.lazycreate
 };
@@ -7161,6 +7117,7 @@ var z = /* @__PURE__ */ Object.freeze({
   ZodParsedType,
   getParsedType,
   ZodType,
+  datetimeRegex,
   ZodString,
   ZodNumber,
   ZodBigInt,
@@ -7261,7 +7218,7 @@ function checkBrowserSupportsBigInt() {
   try {
     BigInt;
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -7469,8 +7426,57 @@ var Platform = /* @__PURE__ */ ((Platform2) => {
 })(Platform || {});
 var Permissions = Object.freeze({
   CREATE_INSTANT_INVITE: BigFlagUtils_default.getFlag(0),
-  ADMINISTRATOR: BigFlagUtils_default.getFlag(3)
+  KICK_MEMBERS: BigFlagUtils_default.getFlag(1),
+  BAN_MEMBERS: BigFlagUtils_default.getFlag(2),
+  ADMINISTRATOR: BigFlagUtils_default.getFlag(3),
+  MANAGE_CHANNELS: BigFlagUtils_default.getFlag(4),
+  MANAGE_GUILD: BigFlagUtils_default.getFlag(5),
+  ADD_REACTIONS: BigFlagUtils_default.getFlag(6),
+  VIEW_AUDIT_LOG: BigFlagUtils_default.getFlag(7),
+  PRIORITY_SPEAKER: BigFlagUtils_default.getFlag(8),
+  STREAM: BigFlagUtils_default.getFlag(9),
+  VIEW_CHANNEL: BigFlagUtils_default.getFlag(10),
+  SEND_MESSAGES: BigFlagUtils_default.getFlag(11),
+  SEND_TTS_MESSAGES: BigFlagUtils_default.getFlag(12),
+  MANAGE_MESSAGES: BigFlagUtils_default.getFlag(13),
+  EMBED_LINKS: BigFlagUtils_default.getFlag(14),
+  ATTACH_FILES: BigFlagUtils_default.getFlag(15),
+  READ_MESSAGE_HISTORY: BigFlagUtils_default.getFlag(16),
+  MENTION_EVERYONE: BigFlagUtils_default.getFlag(17),
+  USE_EXTERNAL_EMOJIS: BigFlagUtils_default.getFlag(18),
+  VIEW_GUILD_INSIGHTS: BigFlagUtils_default.getFlag(19),
+  CONNECT: BigFlagUtils_default.getFlag(20),
+  SPEAK: BigFlagUtils_default.getFlag(21),
+  MUTE_MEMBERS: BigFlagUtils_default.getFlag(22),
+  DEAFEN_MEMBERS: BigFlagUtils_default.getFlag(23),
+  MOVE_MEMBERS: BigFlagUtils_default.getFlag(24),
+  USE_VAD: BigFlagUtils_default.getFlag(25),
+  CHANGE_NICKNAME: BigFlagUtils_default.getFlag(26),
+  MANAGE_NICKNAMES: BigFlagUtils_default.getFlag(27),
+  MANAGE_ROLES: BigFlagUtils_default.getFlag(28),
+  MANAGE_WEBHOOKS: BigFlagUtils_default.getFlag(29),
+  MANAGE_GUILD_EXPRESSIONS: BigFlagUtils_default.getFlag(30),
+  USE_APPLICATION_COMMANDS: BigFlagUtils_default.getFlag(31),
+  REQUEST_TO_SPEAK: BigFlagUtils_default.getFlag(32),
+  MANAGE_EVENTS: BigFlagUtils_default.getFlag(33),
+  MANAGE_THREADS: BigFlagUtils_default.getFlag(34),
+  CREATE_PUBLIC_THREADS: BigFlagUtils_default.getFlag(35),
+  CREATE_PRIVATE_THREADS: BigFlagUtils_default.getFlag(36),
+  USE_EXTERNAL_STICKERS: BigFlagUtils_default.getFlag(37),
+  SEND_MESSAGES_IN_THREADS: BigFlagUtils_default.getFlag(38),
+  USE_EMBEDDED_ACTIVITIES: BigFlagUtils_default.getFlag(39),
+  MODERATE_MEMBERS: BigFlagUtils_default.getFlag(40),
+  VIEW_CREATOR_MONETIZATION_ANALYTICS: BigFlagUtils_default.getFlag(41),
+  USE_SOUNDBOARD: BigFlagUtils_default.getFlag(42),
+  CREATE_GUILD_EXPRESSIONS: BigFlagUtils_default.getFlag(43),
+  CREATE_EVENTS: BigFlagUtils_default.getFlag(44),
+  USE_EXTERNAL_SOUNDS: BigFlagUtils_default.getFlag(45),
+  SEND_VOICE_MESSAGES: BigFlagUtils_default.getFlag(46),
+  SEND_POLLS: BigFlagUtils_default.getFlag(49),
+  USE_EXTERNAL_APPS: BigFlagUtils_default.getFlag(50)
 });
+var UNKNOWN_VERSION_NUMBER = -1;
+var HANDSHAKE_SDK_VERSION_MINIMUM_MOBILE_VERSION = 250;
 
 // src/schema/common.ts
 var common_exports = {};
@@ -7494,6 +7500,7 @@ __export(common_exports, {
   EntitlementTypesObject: () => EntitlementTypesObject,
   Guild: () => Guild,
   GuildMember: () => GuildMember,
+  GuildMemberRPC: () => GuildMemberRPC,
   Image: () => Image,
   KeyTypesObject: () => KeyTypesObject,
   LayoutMode: () => LayoutMode,
@@ -7533,13 +7540,16 @@ __export(common_exports, {
 
 // src/utils/zodUtils.ts
 function zodCoerceUnhandledValue(inputObject) {
-  return preprocessType((arg) => {
-    const [objectKey] = Object.entries(inputObject).find(([, value]) => value === arg) ?? [];
-    if (arg != null && objectKey === void 0) {
-      return inputObject.UNHANDLED;
-    }
-    return arg;
-  }, stringType().or(numberType()));
+  return preprocessType(
+    (arg) => {
+      const [objectKey] = Object.entries(inputObject).find(([, value]) => value === arg) ?? [];
+      if (arg != null && objectKey === void 0) {
+        return inputObject.UNHANDLED;
+      }
+      return arg;
+    },
+    stringType().or(numberType())
+  );
 }
 function fallbackToDefault(schema) {
   const transform2 = custom().transform((data) => {
@@ -7576,7 +7586,9 @@ var AuthenticateResponseSchema = z.object({
         "guilds",
         "guilds.join",
         "guilds.members.read",
+        "guilds.channels.read",
         "gdm.join",
+        "bot",
         "rpc",
         "rpc.notifications.read",
         "rpc.voice.read",
@@ -7586,22 +7598,31 @@ var AuthenticateResponseSchema = z.object({
         "rpc.screenshare.read",
         "rpc.screenshare.write",
         "rpc.activities.write",
-        "bot",
         "webhook.incoming",
         "messages.read",
         "applications.builds.upload",
         "applications.builds.read",
         "applications.commands",
-        "applications.commands.update",
         "applications.commands.permissions.update",
+        "applications.commands.update",
         "applications.store.update",
         "applications.entitlements",
         "activities.read",
         "activities.write",
         "relationships.read",
+        "relationships.write",
         "voice",
         "dm_channels.read",
-        "role_connections.write"
+        "role_connections.write",
+        "presences.read",
+        "presences.write",
+        "openid",
+        "dm_channels.messages.read",
+        "dm_channels.messages.write",
+        "gateway.connect",
+        "account.global_name.update",
+        "payment_sources.country_code",
+        "sdk.social_layer"
       ]).or(z.literal(-1)).default(-1)
     )
   ),
@@ -7630,6 +7651,30 @@ var GetActivityInstanceConnectedParticipantsResponseSchema = z.object({
     })
   )
 });
+var ShareInteractionRequestSchema = z.object({
+  command: z.string(),
+  content: z.string().max(2e3).optional(),
+  preview_image: z.object({ height: z.number(), url: z.string(), width: z.number() }).optional(),
+  components: z.array(
+    z.object({
+      type: z.literal(1),
+      components: z.array(
+        z.object({
+          type: z.literal(2),
+          style: z.number().gte(1).lte(5),
+          label: z.string().max(80).optional(),
+          custom_id: z.string().max(100).describe("Developer-defined identifier for the button; max 100 characters").optional()
+        })
+      ).max(5).optional()
+    })
+  ).optional()
+});
+var ShareLinkRequestSchema = z.object({
+  referrer_id: z.string().max(64).optional(),
+  custom_id: z.string().max(64).optional(),
+  message: z.string().max(1e3)
+});
+var ShareLinkResponseSchema = z.object({ success: z.boolean() });
 var emptyResponseSchema = z.object({}).optional().nullable();
 var emptyRequestSchema = z.void();
 var Schemas = {
@@ -7648,6 +7693,14 @@ var Schemas = {
   ["GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS" /* GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS */]: {
     request: emptyRequestSchema,
     response: GetActivityInstanceConnectedParticipantsResponseSchema
+  },
+  ["SHARE_INTERACTION" /* SHARE_INTERACTION */]: {
+    request: ShareInteractionRequestSchema,
+    response: emptyResponseSchema
+  },
+  ["SHARE_LINK" /* SHARE_LINK */]: {
+    request: ShareLinkRequestSchema,
+    response: ShareLinkResponseSchema
   }
 };
 
@@ -7685,6 +7738,7 @@ var Commands = /* @__PURE__ */ ((Commands5) => {
   Commands5["OPEN_SHARE_MOMENT_DIALOG"] = "OPEN_SHARE_MOMENT_DIALOG";
   Commands5["INITIATE_IMAGE_UPLOAD"] = "INITIATE_IMAGE_UPLOAD";
   Commands5["GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS"] = "GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS";
+  Commands5["SHARE_LINK"] = "SHARE_LINK";
   return Commands5;
 })(Commands || {});
 var ReceiveFramePayload = objectType({
@@ -7719,6 +7773,17 @@ var GuildMember = objectType({
   joined_at: stringType(),
   deaf: booleanType(),
   mute: booleanType()
+});
+var GuildMemberRPC = objectType({
+  user_id: stringType(),
+  nick: stringType().optional().nullable(),
+  guild_id: stringType(),
+  avatar: stringType().optional().nullable(),
+  avatar_decoration_data: objectType({
+    asset: stringType(),
+    sku_id: stringType().optional().nullable()
+  }).optional().nullable(),
+  color_string: stringType().optional().nullable()
 });
 var Emoji = objectType({
   id: stringType(),
@@ -8147,6 +8212,7 @@ var Events = /* @__PURE__ */ ((Events2) => {
   Events2["ACTIVITY_LAYOUT_MODE_UPDATE"] = "ACTIVITY_LAYOUT_MODE_UPDATE";
   Events2["ORIENTATION_UPDATE"] = "ORIENTATION_UPDATE";
   Events2["CURRENT_USER_UPDATE"] = "CURRENT_USER_UPDATE";
+  Events2["CURRENT_GUILD_MEMBER_UPDATE"] = "CURRENT_GUILD_MEMBER_UPDATE";
   Events2["ENTITLEMENT_CREATE"] = "ENTITLEMENT_CREATE";
   Events2["THERMAL_STATE_UPDATE"] = "THERMAL_STATE_UPDATE";
   Events2["ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE"] = "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE";
@@ -8281,6 +8347,15 @@ var EventSchema = {
       data: User
     })
   },
+  ["CURRENT_GUILD_MEMBER_UPDATE" /* CURRENT_GUILD_MEMBER_UPDATE */]: {
+    payload: DispatchEventFrame.extend({
+      evt: literalType("CURRENT_GUILD_MEMBER_UPDATE" /* CURRENT_GUILD_MEMBER_UPDATE */),
+      data: GuildMemberRPC
+    }),
+    subscribeArgs: objectType({
+      guild_id: stringType()
+    })
+  },
   ["ENTITLEMENT_CREATE" /* ENTITLEMENT_CREATE */]: {
     payload: DispatchEventFrame.extend({
       evt: literalType("ENTITLEMENT_CREATE" /* ENTITLEMENT_CREATE */),
@@ -8321,6 +8396,7 @@ __export(responses_exports, {
   GetSkusResponse: () => GetSkusResponse,
   InitiateImageUploadResponse: () => InitiateImageUploadResponseSchema,
   NullableChannelResponse: () => NullableChannelResponse,
+  OpenExternalLinkResponse: () => OpenExternalLinkResponse,
   ResponseFrame: () => ResponseFrame,
   SelectTextChannelResponse: () => SelectTextChannelResponse,
   SelectVoiceChannelResponse: () => SelectVoiceChannelResponse,
@@ -8407,6 +8483,9 @@ var EncourageHardwareAccelerationResponse = objectType({
 var GetChannelPermissionsResponse = objectType({
   permissions: bigIntType().or(stringType())
 });
+var OpenExternalLinkResponse = fallbackToDefault(
+  objectType({ opened: booleanType().or(nullType()) }).default({ opened: null })
+);
 var GetPlatformBehaviorsResponse = objectType({
   iosKeyboardResizesView: optionalType(booleanType())
 });
@@ -8456,6 +8535,8 @@ function parseResponseData({ cmd, data }) {
     case "USER_SETTINGS_GET_LOCALE" /* USER_SETTINGS_GET_LOCALE */:
       return UserSettingsGetLocaleResponse.parse(data);
     case "OPEN_EXTERNAL_LINK" /* OPEN_EXTERNAL_LINK */:
+      return OpenExternalLinkResponse.parse(data);
+    // Empty Responses
     case "SET_ORIENTATION_LOCK_STATE" /* SET_ORIENTATION_LOCK_STATE */:
     case "SET_CERTIFIED_DEVICES" /* SET_CERTIFIED_DEVICES */:
     case "SEND_ANALYTICS_EVENT" /* SEND_ANALYTICS_EVENT */:
@@ -8464,10 +8545,12 @@ function parseResponseData({ cmd, data }) {
     case "GET_SKUS" /* GET_SKUS */:
     case "GET_ENTITLEMENTS" /* GET_ENTITLEMENTS */:
       return EmptyResponse.parse(data);
+    // Generated Responses
     case "AUTHENTICATE" /* AUTHENTICATE */:
     case "INITIATE_IMAGE_UPLOAD" /* INITIATE_IMAGE_UPLOAD */:
     case "OPEN_SHARE_MOMENT_DIALOG" /* OPEN_SHARE_MOMENT_DIALOG */:
     case "GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS" /* GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS */:
+    case "SHARE_LINK" /* SHARE_LINK */:
       const { response } = Schemas[cmd];
       return response.parse(data);
     default:
@@ -8585,7 +8668,11 @@ var getPlatformBehaviors = (sendCommand) => commandFactory(
 );
 
 // src/commands/openExternalLink.ts
-var openExternalLink = (sendCommand) => commandFactory(sendCommand, "OPEN_EXTERNAL_LINK" /* OPEN_EXTERNAL_LINK */, EmptyResponse);
+var openExternalLink = (sendCommand) => commandFactory(
+  sendCommand,
+  "OPEN_EXTERNAL_LINK" /* OPEN_EXTERNAL_LINK */,
+  OpenExternalLinkResponse
+);
 
 // src/commands/openInviteDialog.ts
 var openInviteDialog = (sendCommand) => commandFactory(sendCommand, "OPEN_INVITE_DIALOG" /* OPEN_INVITE_DIALOG */, EmptyResponse);
@@ -8601,9 +8688,7 @@ var SetActivity = Activity.pick({
   assets: true,
   party: true,
   secrets: true,
-  buttons: true,
   instance: true,
-  supported_platforms: true,
   type: true
 }).extend({
   type: Activity.shape.type.optional(),
@@ -8658,6 +8743,9 @@ var setOrientationLockState = (sendCommand) => compatCommandFactory({
   fallbackTransform
 });
 
+// src/commands/shareLink.ts
+var shareLink = schemaCommandFactory("SHARE_LINK" /* SHARE_LINK */);
+
 // src/commands/startPurchase.ts
 var startPurchase = (sendCommand) => commandFactory(
   sendCommand,
@@ -8701,6 +8789,7 @@ function commands(sendCommand) {
     setActivity: setActivity(sendCommand),
     setConfig: setConfig(sendCommand),
     setOrientationLockState: setOrientationLockState(sendCommand),
+    shareLink: shareLink(sendCommand),
     startPurchase: startPurchase(sendCommand),
     userSettingsGetLocale: userSettingsGetLocale(sendCommand),
     initiateImageUpload: initiateImageUpload(sendCommand),
@@ -8709,12 +8798,22 @@ function commands(sendCommand) {
 }
 var commands_default = commands;
 
+// node_modules/uuid/dist/esm-browser/stringify.js
+var byteToHex = [];
+for (i = 0; i < 256; ++i) {
+  byteToHex.push((i + 256).toString(16).slice(1));
+}
+var i;
+function unsafeStringify(arr, offset = 0) {
+  return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
+}
+
 // node_modules/uuid/dist/esm-browser/rng.js
 var getRandomValues;
 var rnds8 = new Uint8Array(16);
 function rng() {
   if (!getRandomValues) {
-    getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== "undefined" && typeof msCrypto.getRandomValues === "function" && msCrypto.getRandomValues.bind(msCrypto);
+    getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto);
     if (!getRandomValues) {
       throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
     }
@@ -8722,33 +8821,17 @@ function rng() {
   return getRandomValues(rnds8);
 }
 
-// node_modules/uuid/dist/esm-browser/regex.js
-var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-
-// node_modules/uuid/dist/esm-browser/validate.js
-function validate(uuid) {
-  return typeof uuid === "string" && regex_default.test(uuid);
-}
-var validate_default = validate;
-
-// node_modules/uuid/dist/esm-browser/stringify.js
-var byteToHex = [];
-for (i = 0; i < 256; ++i) {
-  byteToHex.push((i + 256).toString(16).substr(1));
-}
-var i;
-function stringify(arr) {
-  var offset = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 0;
-  var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
-  if (!validate_default(uuid)) {
-    throw TypeError("Stringified UUID is invalid");
-  }
-  return uuid;
-}
-var stringify_default = stringify;
+// node_modules/uuid/dist/esm-browser/native.js
+var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
+var native_default = {
+  randomUUID
+};
 
 // node_modules/uuid/dist/esm-browser/v4.js
 function v4(options, buf, offset) {
+  if (native_default.randomUUID && !buf && !options) {
+    return native_default.randomUUID();
+  }
   options = options || {};
   var rnds = options.random || (options.rng || rng)();
   rnds[6] = rnds[6] & 15 | 64;
@@ -8760,7 +8843,7 @@ function v4(options, buf, offset) {
     }
     return buf;
   }
-  return stringify_default(rnds);
+  return unsafeStringify(rnds);
 }
 var v4_default = v4;
 
@@ -8797,11 +8880,13 @@ function wrapConsoleMethod(console2, level, callback) {
   };
 }
 
+// package.json
+var version = "1.9.0";
+
 // src/Discord.ts
 var ALLOWED_ORIGINS = new Set(getAllowedOrigins());
 function getAllowedOrigins() {
-  if (typeof window === "undefined")
-    return [];
+  if (typeof window === "undefined") return [];
   return [
     window.location.origin,
     "https://discord.com",
@@ -8821,13 +8906,14 @@ function getRPCServerSource() {
 }
 var DiscordSDK = class {
   constructor(clientId, configuration) {
+    this.sdkVersion = version;
+    this.mobileAppVersion = null;
     this.source = null;
     this.sourceOrigin = "";
-    this.eventBus = new import_eventemitter3.default();
+    this.eventBus = new eventemitter3_default();
     this.pendingCommands = /* @__PURE__ */ new Map();
     this.sendCommand = (payload) => {
-      if (this.source == null)
-        throw new Error("Attempting to send message before initialization");
+      if (this.source == null) throw new Error("Attempting to send message before initialization");
       const nonce = v4_default();
       this.source?.postMessage([1 /* FRAME */, { ...payload, nonce }], this.sourceOrigin, this.getTransfer(payload));
       const promise = new Promise((resolve, reject) => {
@@ -8847,8 +8933,7 @@ var DiscordSDK = class {
      * config.disableConsoleLogOverride to true when initializing the SDK
      */
     this.handleMessage = (event) => {
-      if (!ALLOWED_ORIGINS.has(event.origin))
-        return;
+      if (!ALLOWED_ORIGINS.has(event.origin)) return;
       const tuple = event.data;
       if (!Array.isArray(tuple)) {
         return;
@@ -8876,9 +8961,12 @@ var DiscordSDK = class {
     if (typeof window === "undefined") {
       this.frameId = "";
       this.instanceId = "";
+      this.customId = null;
+      this.referrerId = null;
       this.platform = "desktop" /* DESKTOP */;
       this.guildId = null;
       this.channelId = null;
+      this.locationId = null;
       return;
     }
     const urlParams = new URLSearchParams(this._getSearch());
@@ -8901,8 +8989,12 @@ var DiscordSDK = class {
       );
     }
     this.platform = platform;
+    this.customId = urlParams.get("custom_id");
+    this.referrerId = urlParams.get("referrer_id");
     this.guildId = urlParams.get("guild_id");
     this.channelId = urlParams.get("channel_id");
+    this.locationId = urlParams.get("location_id");
+    this.mobileAppVersion = urlParams.get("mobile_app_version");
     [this.source, this.sourceOrigin] = getRPCServerSource();
     this.addOnReadyListener();
     this.handshake();
@@ -8954,19 +9046,28 @@ var DiscordSDK = class {
       });
     }
   }
+  parseMajorMobileVersion() {
+    if (this.mobileAppVersion && this.mobileAppVersion.includes(".")) {
+      try {
+        return parseInt(this.mobileAppVersion.split(".")[0]);
+      } catch {
+        return UNKNOWN_VERSION_NUMBER;
+      }
+    }
+    return UNKNOWN_VERSION_NUMBER;
+  }
   handshake() {
-    this.source?.postMessage(
-      [
-        0 /* HANDSHAKE */,
-        {
-          v: 1,
-          encoding: "json",
-          client_id: this.clientId,
-          frame_id: this.frameId
-        }
-      ],
-      this.sourceOrigin
-    );
+    const handshakePayload = {
+      v: 1,
+      encoding: "json",
+      client_id: this.clientId,
+      frame_id: this.frameId
+    };
+    const majorMobileVersion = this.parseMajorMobileVersion();
+    if (this.platform === "desktop" /* DESKTOP */ || majorMobileVersion >= HANDSHAKE_SDK_VERSION_MINIMUM_MOBILE_VERSION) {
+      handshakePayload["sdk_version"] = this.sdkVersion;
+    }
+    this.source?.postMessage([0 /* HANDSHAKE */, handshakePayload], this.sourceOrigin);
   }
   addOnReadyListener() {
     this.eventBus.once("READY" /* READY */, () => {
@@ -8975,8 +9076,7 @@ var DiscordSDK = class {
     });
   }
   overrideConsoleLogging() {
-    if (this.configuration.disableConsoleLogOverride)
-      return;
+    if (this.configuration.disableConsoleLogOverride) return;
     const sendCaptureLogCommand = (level, message) => {
       this.commands.captureLog({
         level,
@@ -9242,22 +9342,26 @@ var PriceUtils_default = {
 };
 
 // src/mock.ts
-var import_eventemitter32 = __toESM(require_eventemitter3());
 var import_big_integer2 = __toESM(require_BigInteger());
 var import_lodash = __toESM(require_lodash());
 var DiscordSDKMock = class {
-  constructor(clientId, guildId, channelId) {
+  constructor(clientId, guildId, channelId, locationId) {
     this.platform = "desktop" /* DESKTOP */;
     this.instanceId = "123456789012345678";
     this.configuration = getDefaultSdkConfiguration();
     this.source = null;
     this.sourceOrigin = "";
+    this.sdkVersion = "mock";
+    this.mobileAppVersion = "unknown";
     this.frameId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-    this.eventBus = new import_eventemitter32.default();
+    this.eventBus = new eventemitter3_default();
     this.clientId = clientId;
     this.commands = this._updateCommandMocks({});
     this.guildId = guildId;
     this.channelId = channelId;
+    this.locationId = locationId;
+    this.customId = null;
+    this.referrerId = null;
   }
   _updateCommandMocks(newCommands) {
     this.commands = (0, import_lodash.default)(Object.assign({}, commandsMockDefault, newCommands), (mock, func, name) => {
@@ -9323,7 +9427,7 @@ var commandsMockDefault = {
   startPurchase: () => Promise.resolve([]),
   setConfig: () => Promise.resolve({ use_interactive_pip: false }),
   userSettingsGetLocale: () => Promise.resolve({ locale: "" }),
-  openExternalLink: () => Promise.resolve(null),
+  openExternalLink: () => Promise.resolve({ opened: false }),
   encourageHardwareAcceleration: () => Promise.resolve({ enabled: true }),
   captureLog: () => Promise.resolve(null),
   setOrientationLockState: () => Promise.resolve(null),
@@ -9333,6 +9437,7 @@ var commandsMockDefault = {
   }),
   getChannelPermissions: () => Promise.resolve({ permissions: (0, import_big_integer2.default)(1234567890) }),
   openShareMomentDialog: () => Promise.resolve(null),
+  shareLink: () => Promise.resolve({ success: false }),
   initiateImageUpload: () => Promise.resolve({
     image_url: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0b52aa9e99b832574a53_full_logo_blurple_RGB.png"
   }),
@@ -9340,6 +9445,7 @@ var commandsMockDefault = {
 };
 
 // src/utils/url.ts
+var PROXY_PREFIX = "/.proxy";
 var SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
 function regexFromTarget(target) {
   const regexString = target.replace(SUBSTITUTION_REGEX, (match, name) => `(?<${name}>[\\w-]+)`);
@@ -9349,17 +9455,18 @@ function matchAndRewriteURL({ originalURL, prefix, prefixHost, target }) {
   const targetURL = new URL(`https://${target}`);
   const targetRegEx = regexFromTarget(targetURL.host.replace(/%7B/g, "{").replace(/%7D/g, "}"));
   const match = originalURL.toString().match(targetRegEx);
-  if (match == null)
-    return originalURL;
+  if (match == null) return originalURL;
   const newURL = new URL(originalURL.toString());
   newURL.host = prefixHost;
   newURL.pathname = prefix.replace(SUBSTITUTION_REGEX, (_, matchName) => {
     const replaceValue = match.groups?.[matchName];
-    if (replaceValue == null)
-      throw new Error("Misconfigured route.");
+    if (replaceValue == null) throw new Error("Misconfigured route.");
     return replaceValue;
   });
   newURL.pathname += newURL.pathname === "/" ? originalURL.pathname.slice(1) : originalURL.pathname;
+  if ((newURL.hostname.includes("discordsays.com") || newURL.hostname.includes("discordsez.com")) && !newURL.pathname.startsWith(PROXY_PREFIX)) {
+    newURL.pathname = PROXY_PREFIX + newURL.pathname;
+  }
   newURL.pathname = newURL.pathname.replace(targetURL.pathname, "");
   if (originalURL.pathname.endsWith("/") && !newURL.pathname.endsWith("/")) {
     newURL.pathname += "/";
@@ -9372,8 +9479,7 @@ function absoluteURL(url, protocol = window.location.protocol, host = window.loc
 
 // src/utils/patchUrlMappings.ts
 function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false } = {}) {
-  if (typeof window === "undefined")
-    return;
+  if (typeof window === "undefined") return;
   if (patchFetch) {
     const fetchImpl = window.fetch;
     window.fetch = function(input, init) {
@@ -9381,8 +9487,7 @@ function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, 
         const newUrl = attemptRemap({ url: absoluteURL(input.url), mappings });
         const { url, ...newInit } = init ?? {};
         Object.keys(Request.prototype).forEach((value) => {
-          if (value === "url")
-            return;
+          if (value === "url") return;
           try {
             newInit[value] = input[value];
           } catch (ex) {
@@ -9428,7 +9533,10 @@ function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, 
         if (mutation.type === "attributes" && mutation.attributeName === "src") {
           attemptSetNodeSrc(mutation.target, mappings);
         } else if (mutation.type === "childList") {
-          mutation.addedNodes.forEach((node) => recursivelyRemapChildNodes(node, mappings));
+          mutation.addedNodes.forEach((node) => {
+            attemptSetNodeSrc(node, mappings);
+            recursivelyRemapChildNodes(node, mappings);
+          });
         }
       }
     };
@@ -9454,16 +9562,41 @@ function recursivelyRemapChildNodes(node, mappings) {
 }
 function attemptSetNodeSrc(node, mappings) {
   if (node instanceof HTMLElement && node.hasAttribute("src")) {
-    const url = absoluteURL(node.getAttribute("src") ?? "");
-    if (url.host === window.location.host)
-      return;
-    node.setAttribute("src", attemptRemap({ url, mappings }).toString());
+    const rawSrc = node.getAttribute("src");
+    const url = absoluteURL(rawSrc ?? "");
+    if (url.host === window.location.host) return;
+    if (node.tagName.toLowerCase() === "script") {
+      attemptRecreateScriptNode(node, { url, mappings });
+    } else {
+      const newSrc = attemptRemap({ url, mappings }).toString();
+      if (newSrc !== rawSrc) {
+        node.setAttribute("src", newSrc);
+      }
+    }
+  }
+}
+function attemptRecreateScriptNode(node, { url, mappings }) {
+  const newUrl = attemptRemap({ url, mappings });
+  if (url.toString() !== newUrl.toString()) {
+    const newNode = document.createElement(node.tagName);
+    newNode.innerHTML = node.innerHTML;
+    for (const attr of node.attributes) {
+      newNode.setAttribute(attr.name, attr.value);
+    }
+    newNode.setAttribute("src", attemptRemap({ url, mappings }).toString());
+    node.after(newNode);
+    node.remove();
   }
 }
 function attemptRemap({ url, mappings }) {
+  const newURL = new URL(url.toString());
+  if ((newURL.hostname.includes("discordsays.com") || newURL.hostname.includes("discordsez.com")) && // Only apply proxy prefix once
+  !newURL.pathname.startsWith(PROXY_PREFIX)) {
+    newURL.pathname = PROXY_PREFIX + newURL.pathname;
+  }
   for (const mapping of mappings) {
     const mapped = matchAndRewriteURL({
-      originalURL: url,
+      originalURL: newURL,
       prefix: mapping.prefix,
       target: mapping.target,
       prefixHost: window.location.host
@@ -9472,7 +9605,7 @@ function attemptRemap({ url, mappings }) {
       return mapped;
     }
   }
-  return url;
+  return newURL;
 }
 
 // src/index.ts
@@ -9497,5 +9630,5 @@ export {
 /*! Bundled license information:
 
 decimal.js-light/decimal.js:
-  (*! decimal.js-light v2.5.0 https://github.com/MikeMcl/decimal.js-light/LICENCE *)
+  (*! decimal.js-light v2.5.1 https://github.com/MikeMcl/decimal.js-light/LICENCE *)
 */

@@ -1,6 +1,6 @@
 [package]
 name = "activity-sys"
-version = "0.1.3"
+version = "0.9.0"
 edition = "2021"
 license = "MIT"
 description = "Bindings for Discord activities in Rust"
