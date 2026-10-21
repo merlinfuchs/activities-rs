@@ -52,10 +52,99 @@ pub struct Application {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Channel {}
+pub struct Channel {
+    pub id: String,
+    pub r#type: i32,
+    #[serde(default)]
+    pub guild_id: Option<String>,
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub topic: Option<String>,
+    #[serde(default)]
+    pub bitrate: Option<u32>,
+    #[serde(default)]
+    pub user_limit: Option<u32>,
+    #[serde(default)]
+    pub position: Option<i32>,
+    #[serde(default)]
+    pub voice_states: Vec<UserVoiceState>,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Activity {}
+pub struct UserVoiceState {
+    pub user: User,
+    pub nick: String,
+    pub mute: bool,
+    pub volume: u32,
+    pub voice_state: VoiceState,
+    #[serde(default)]
+    pub pan: Option<VoiceStateUpdatePan>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Activity {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub details_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timestamps: Option<ActivityTimestamps>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub assets: Option<ActivityAssets>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub party: Option<ActivityParty>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub secrets: Option<ActivitySecrets>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instance: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ActivityTimestamps {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub start: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub end: Option<u64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ActivityAssets {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub large_image: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub large_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub large_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub small_image: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub small_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub small_url: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ActivityParty {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<Vec<u32>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ActivitySecrets {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub join: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#match: Option<String>,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SdkConfiguration {
@@ -149,7 +238,7 @@ pub struct OpenShareMomentDialogArgs {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SetActivityArgs {
-    pub activity: Activity,
+    pub activity: Option<Activity>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -166,7 +255,7 @@ pub struct SetOrientationLockStateArgs {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UserSettingsGetLocaleRes {
-    // TODO: Implement this struct
+    pub locale: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
