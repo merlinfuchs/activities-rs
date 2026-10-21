@@ -106,18 +106,24 @@ impl DiscordSDK {
 
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        let event_type = T::event_type();
-
-        self.internal
-            .subscribe(event_type.as_str(), &closure, args_value.clone())
-            .await?;
-
-        Ok(EventSubscription {
+        // The SDK registers the listener before sending SUBSCRIBE, so on failure
+        // the subscription must still be dropped to remove it
+        let subscription = EventSubscription {
             sdk: self.clone(),
-            event_type,
+            event_type: T::event_type(),
             args: args_value,
             closure: Some(closure),
-        })
+        };
+
+        self.internal
+            .subscribe(
+                subscription.event_type.as_str(),
+                subscription.closure.as_ref().unwrap(),
+                subscription.args.clone(),
+            )
+            .await?;
+
+        Ok(subscription)
     }
 
     pub async fn authenticate(&self, args: AuthenticateArgs) -> Result<AuthenticateRes, JsValue> {
@@ -160,14 +166,7 @@ impl DiscordSDK {
 
     pub async fn get_channel_permissions(&self) -> Result<GetChannelPermissionsRes, JsValue> {
         let res = self.internal.commands().get_channel_permissions().await?;
-
-        // The SDK returns either a string or a BigInt, toString() handles both
-        let permissions = js_sys::Reflect::get(&res, &"permissions".into())?;
-        let permissions = String::from(permissions.unchecked_ref::<js_sys::Object>().to_string())
-            .parse()
-            .map_err(|_| JsValue::from_str("invalid permissions value"))?;
-
-        Ok(GetChannelPermissionsRes { permissions })
+        Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
     #[deprecated(note = "use get_activity_instance_connected_participants")]
@@ -391,14 +390,30 @@ pub struct EventSubscription {
 
 impl EventSubscription {
     pub async fn unsubscribe(mut self) -> Result<(), JsValue> {
-        let Some(closure) = self.closure.take() else {
+        let Some(closure) = self.closure.as_ref() else {
             return Ok(());
         };
 
-        self.sdk
+        // Closure stays in `self` while awaiting so a cancelled future falls back to Drop
+        let res = self
+            .sdk
             .internal
-            .unsubscribe(self.event_type.as_str(), &closure, self.args.clone())
-            .await
+            .unsubscribe(self.event_type.as_str(), closure, self.args.clone())
+            .await;
+
+        release_closure(self.closure.take().unwrap(), res.is_ok());
+        res
+    }
+}
+
+/// If unsubscribing failed the SDK never called `off`, so the listener still
+/// references the closure and it must not be freed.
+fn release_closure(
+    closure: Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
+    unsubscribed: bool,
+) {
+    if !unsubscribed {
+        closure.forget();
     }
 }
 
@@ -416,10 +431,10 @@ impl Drop for EventSubscription {
         // The closure must outlive the unsubscribe call, the SDK only removes the listener after it resolves
         let internal = self.sdk.internal.clone();
         let event = self.event_type.as_str().to_string();
-        let args = self.args.clone();
+        let args = std::mem::replace(&mut self.args, JsValue::UNDEFINED);
         wasm_bindgen_futures::spawn_local(async move {
-            let _ = internal.unsubscribe(&event, &closure, args).await;
-            drop(closure);
+            let res = internal.unsubscribe(&event, &closure, args).await;
+            release_closure(closure, res.is_ok());
         });
     }
 }

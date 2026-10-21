@@ -10,6 +10,24 @@ where
     Ok(Option::<T>::deserialize(deserializer)?.unwrap_or_default())
 }
 
+// The SDK returns permissions as either a BigInt or a string
+fn u64_from_int_or_str<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum IntOrStr {
+        Int(u64),
+        Str(String),
+    }
+
+    match IntOrStr::deserialize(deserializer)? {
+        IntOrStr::Int(v) => Ok(v),
+        IntOrStr::Str(s) => s.parse().map_err(serde::de::Error::custom),
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {
     pub id: String,
@@ -86,7 +104,7 @@ pub struct UserVoiceState {
     pub user: User,
     pub nick: String,
     pub mute: bool,
-    pub volume: u32,
+    pub volume: f32,
     pub voice_state: VoiceState,
     #[serde(default)]
     pub pan: Option<VoiceStateUpdatePan>,
@@ -227,6 +245,7 @@ pub struct GetChannelRes {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetChannelPermissionsRes {
+    #[serde(deserialize_with = "u64_from_int_or_str")]
     pub permissions: u64,
 }
 
