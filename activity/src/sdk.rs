@@ -93,7 +93,7 @@ impl DiscordSDK {
     pub async fn subscribe<F: 'static, T>(
         &self,
         mut f: F,
-        args: SubscribeArgs,
+        args: T::Args,
     ) -> Result<EventSubscription, JsValue>
     where
         T: DeserializeOwned + EventPayload,

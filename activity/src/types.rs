@@ -569,6 +569,8 @@ pub struct ReadyEvent {
 }
 
 impl EventPayload for ReadyEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::Ready
     }
@@ -599,6 +601,8 @@ pub struct ErrorEvent {
 }
 
 impl EventPayload for ErrorEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::Error
     }
@@ -617,6 +621,8 @@ pub struct VoiceStateUpdateEvent {
 }
 
 impl EventPayload for VoiceStateUpdateEvent {
+    type Args = SubscribeArgs;
+
     fn event_type() -> EventType {
         EventType::VoiceStateUpdate
     }
@@ -644,6 +650,8 @@ pub struct SpeakingStartEvent {
 }
 
 impl EventPayload for SpeakingStartEvent {
+    type Args = SpeakingSubscribeArgs;
+
     fn event_type() -> EventType {
         EventType::SpeakingStart
     }
@@ -656,6 +664,8 @@ pub struct SpeakingStopEvent {
 }
 
 impl EventPayload for SpeakingStopEvent {
+    type Args = SpeakingSubscribeArgs;
+
     fn event_type() -> EventType {
         EventType::SpeakingStop
     }
@@ -667,6 +677,8 @@ pub struct ActivityLayoutModeUpdateEvent {
 }
 
 impl EventPayload for ActivityLayoutModeUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::ActivityLayoutModeUpdate
     }
@@ -680,6 +692,8 @@ pub struct OrientationUpdateEvent {
 }
 
 impl EventPayload for OrientationUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::OrientationUpdate
     }
@@ -692,6 +706,8 @@ pub struct CurrentUserUpdateEvent {
 }
 
 impl EventPayload for CurrentUserUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::CurrentUserUpdate
     }
@@ -704,6 +720,8 @@ pub struct CurrentGuildMemberUpdateEvent {
 }
 
 impl EventPayload for CurrentGuildMemberUpdateEvent {
+    type Args = GuildSubscribeArgs;
+
     fn event_type() -> EventType {
         EventType::CurrentGuildMemberUpdate
     }
@@ -715,6 +733,8 @@ pub struct ThermalStateUpdateEvent {
 }
 
 impl EventPayload for ThermalStateUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::ThermalStateUpdate
     }
@@ -726,6 +746,8 @@ pub struct ActivityInstanceParticipantsUpdateEvent {
 }
 
 impl EventPayload for ActivityInstanceParticipantsUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::ActivityInstanceParticipantsUpdate
     }
@@ -737,6 +759,8 @@ pub struct EntitlementCreateEvent {
 }
 
 impl EventPayload for EntitlementCreateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::EntitlementCreate
     }
@@ -750,6 +774,8 @@ pub struct ActivityJoinEvent {
 }
 
 impl EventPayload for ActivityJoinEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::ActivityJoin
     }
@@ -762,6 +788,8 @@ pub struct RelationshipUpdateEvent {
 }
 
 impl EventPayload for RelationshipUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::RelationshipUpdate
     }
@@ -775,6 +803,8 @@ pub struct QuestEnrollmentStatusUpdateEvent {
 }
 
 impl EventPayload for QuestEnrollmentStatusUpdateEvent {
+    type Args = ();
+
     fn event_type() -> EventType {
         EventType::QuestEnrollmentStatusUpdate
     }
@@ -829,6 +859,9 @@ impl Display for EventType {
 }
 
 pub trait EventPayload {
+    /// Arguments passed when subscribing, `()` for events that take none
+    type Args: Serialize;
+
     fn event_type() -> EventType;
 }
 
@@ -844,6 +877,52 @@ impl SubscribeArgs {
     {
         Self {
             channel_id: channel_id.into(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct SpeakingSubscribeArgs {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub channel_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lobby_id: Option<String>,
+}
+
+impl SpeakingSubscribeArgs {
+    pub fn channel_id<T>(channel_id: T) -> Self
+    where
+        T: Into<String>,
+    {
+        Self {
+            channel_id: Some(channel_id.into()),
+            lobby_id: None,
+        }
+    }
+
+    pub fn lobby_id<T>(lobby_id: T) -> Self
+    where
+        T: Into<String>,
+    {
+        Self {
+            channel_id: None,
+            lobby_id: Some(lobby_id.into()),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GuildSubscribeArgs {
+    pub guild_id: String,
+}
+
+impl GuildSubscribeArgs {
+    pub fn guild_id<T>(guild_id: T) -> Self
+    where
+        T: Into<String>,
+    {
+        Self {
+            guild_id: guild_id.into(),
         }
     }
 }

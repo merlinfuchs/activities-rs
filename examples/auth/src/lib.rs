@@ -38,7 +38,7 @@ pub async fn start() -> Result<(), JsValue> {
                 console_log!("Speaking start: {:?}", e);
                 Ok(())
             },
-            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+            SpeakingSubscribeArgs::channel_id(sdk.channel_id().unwrap()),
         )
         .await?;
 
@@ -50,7 +50,7 @@ pub async fn start() -> Result<(), JsValue> {
                 console_log!("Speaking stop: {:?}", e);
                 Ok(())
             },
-            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+            SpeakingSubscribeArgs::channel_id(sdk.channel_id().unwrap()),
         )
         .await?;
 
