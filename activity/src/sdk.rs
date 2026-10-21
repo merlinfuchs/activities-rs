@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use activity_sys::console_debug;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use wasm_bindgen::prelude::*;
 
 use crate::types::*;
@@ -186,7 +186,9 @@ impl DiscordSDK {
     }
 
     pub async fn set_activity(&self, args: SetActivityArgs) -> Result<(), JsValue> {
-        let args_value = serde_wasm_bindgen::to_value(&args)?;
+        // Discord expects `activity: null` to clear the activity
+        let serializer = serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true);
+        let args_value = args.serialize(&serializer)?;
 
         self.internal.commands().set_activity(args_value).await
     }

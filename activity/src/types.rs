@@ -58,43 +58,28 @@ pub struct Channel {
     #[serde(default)]
     pub guild_id: Option<String>,
     #[serde(default)]
-    pub position: Option<i32>,
-    #[serde(default)]
-    pub permission_overwrites: Option<Vec<PermissionOverwrite>>,
-    #[serde(default)]
     pub name: Option<String>,
     #[serde(default)]
     pub topic: Option<String>,
-    #[serde(default)]
-    pub nsfw: Option<bool>,
-    #[serde(default)]
-    pub last_message_id: Option<String>,
     #[serde(default)]
     pub bitrate: Option<u32>,
     #[serde(default)]
     pub user_limit: Option<u32>,
     #[serde(default)]
-    pub rate_limit_per_user: Option<u32>,
+    pub position: Option<i32>,
     #[serde(default)]
-    pub recipients: Option<Vec<User>>,
-    #[serde(default)]
-    pub icon: Option<String>,
-    #[serde(default)]
-    pub owner_id: Option<String>,
-    #[serde(default)]
-    pub application_id: Option<String>,
-    #[serde(default)]
-    pub parent_id: Option<String>,
-    #[serde(default)]
-    pub last_pin_timestamp: Option<String>,
+    pub voice_states: Vec<UserVoiceState>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct PermissionOverwrite {
-    pub id: String,
-    pub r#type: i32,
-    pub allow: String,
-    pub deny: String,
+pub struct UserVoiceState {
+    pub user: User,
+    pub nick: String,
+    pub mute: bool,
+    pub volume: u32,
+    pub voice_state: VoiceState,
+    #[serde(default)]
+    pub pan: Option<VoiceStateUpdatePan>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
