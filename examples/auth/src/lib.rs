@@ -38,7 +38,7 @@ pub async fn start() -> Result<(), JsValue> {
                 console_log!("Speaking start: {:?}", e);
                 Ok(())
             },
-            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+            SpeakingSubscribeArgs::channel_id(sdk.channel_id().unwrap()),
         )
         .await?;
 
@@ -50,7 +50,7 @@ pub async fn start() -> Result<(), JsValue> {
                 console_log!("Speaking stop: {:?}", e);
                 Ok(())
             },
-            SubscribeArgs::channel_id(sdk.channel_id().unwrap()),
+            SpeakingSubscribeArgs::channel_id(sdk.channel_id().unwrap()),
         )
         .await?;
 
@@ -63,20 +63,24 @@ async fn authenticate_user(sdk: &DiscordSDK) -> Result<(), JsValue> {
     let res = sdk
         .authorize(AuthorizeArgs {
             client_id: sdk.client_id(),
-            response_type: "code".to_string(),
-            state: "".to_string(),
-            prompt: "none".to_string(),
+            response_type: Some("code".to_string()),
+            prompt: Some("none".to_string()),
             scope: vec![
                 "identify".to_string(),
                 "guilds".to_string(),
                 "rpc.voice.read".to_string(),
             ],
+            ..Default::default()
         })
         .await?;
 
     let access_token = exchange_token(&res.code).await?;
 
-    let res = sdk.authenticate(AuthenticateArgs { access_token }).await?;
+    let res = sdk
+        .authenticate(AuthenticateArgs {
+            access_token: Some(access_token),
+        })
+        .await?;
 
     console_log!("Authenticated user: {:?}", res.user);
 

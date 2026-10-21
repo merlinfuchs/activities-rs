@@ -20,6 +20,19 @@ impl DiscordSDK {
         })
     }
 
+    pub fn new_with_configuration(
+        client_id: &str,
+        configuration: SdkConfiguration,
+    ) -> Result<Self, JsValue> {
+        let configuration = serde_wasm_bindgen::to_value(&configuration)?;
+        let internal =
+            activity_sys::sdk::DiscordSDK::new_with_configuration(client_id, configuration)?;
+
+        Ok(Self {
+            internal: Arc::new(internal),
+        })
+    }
+
     pub fn client_id(&self) -> String {
         self.internal.client_id()
     }
@@ -48,8 +61,24 @@ impl DiscordSDK {
         self.internal.channel_id()
     }
 
+    pub fn location_id(&self) -> Option<String> {
+        self.internal.location_id()
+    }
+
+    pub fn sdk_version(&self) -> String {
+        self.internal.sdk_version()
+    }
+
+    pub fn mobile_app_version(&self) -> Option<String> {
+        self.internal.mobile_app_version()
+    }
+
     pub fn source_origin(&self) -> Option<String> {
         self.internal.source_origin()
+    }
+
+    pub fn close(&self, code: u16, message: &str) {
+        self.internal.close(code, message)
     }
 
     pub fn configuration(&self) -> SdkConfiguration {
@@ -64,7 +93,7 @@ impl DiscordSDK {
     pub async fn subscribe<F: 'static, T>(
         &self,
         mut f: F,
-        args: SubscribeArgs,
+        args: T::Args,
     ) -> Result<EventSubscription, JsValue>
     where
         T: DeserializeOwned + EventPayload,
@@ -77,25 +106,24 @@ impl DiscordSDK {
 
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        let event_type = T::event_type();
+        // The SDK registers the listener before sending SUBSCRIBE, so on failure
+        // the subscription must still be dropped to remove it
+        let subscription = EventSubscription {
+            sdk: self.clone(),
+            event_type: T::event_type(),
+            args: args_value,
+            closure: Some(closure),
+        };
 
         self.internal
-            .subscribe(event_type.as_str(), &closure, args_value)
+            .subscribe(
+                subscription.event_type.as_str(),
+                subscription.closure.as_ref().unwrap(),
+                subscription.args.clone(),
+            )
             .await?;
 
-        Ok(EventSubscription {
-            sdk: self.clone(),
-            event_type: event_type,
-            _closure: closure,
-        })
-    }
-
-    pub async fn unsubscribe(&self, event: &str) -> Result<(), JsValue> {
-        self.internal.unsubscribe(event).await
-    }
-
-    pub fn unsubscribe_nowait(&self, event: &str) {
-        self.internal.unsubscribe_nowait(event)
+        Ok(subscription)
     }
 
     pub async fn authenticate(&self, args: AuthenticateArgs) -> Result<AuthenticateRes, JsValue> {
@@ -112,17 +140,21 @@ impl DiscordSDK {
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn capture_log(&self, args: CaputeLogArgs) -> Result<(), JsValue> {
+    pub async fn capture_log(&self, args: CaptureLogArgs) -> Result<(), JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
         self.internal.commands().capture_log(args_value).await
     }
 
-    pub async fn encourage_hardware_acceleration(&self) -> Result<(), JsValue> {
-        self.internal
+    pub async fn encourage_hardware_acceleration(
+        &self,
+    ) -> Result<EncourageHardwareAccelerationRes, JsValue> {
+        let res = self
+            .internal
             .commands()
             .encourage_hardware_acceleration()
-            .await
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
     pub async fn get_channel(&self, args: GetChannelArgs) -> Result<GetChannelRes, JsValue> {
@@ -137,6 +169,7 @@ impl DiscordSDK {
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
+    #[deprecated(note = "use get_activity_instance_connected_participants")]
     pub async fn get_instance_connected_participants(
         &self,
     ) -> Result<GetInstanceConnectedParticipantsRes, JsValue> {
@@ -144,6 +177,17 @@ impl DiscordSDK {
             .internal
             .commands()
             .get_instance_connected_participants()
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_activity_instance_connected_participants(
+        &self,
+    ) -> Result<GetInstanceConnectedParticipantsRes, JsValue> {
+        let res = self
+            .internal
+            .commands()
+            .get_activity_instance_connected_participants()
             .await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
@@ -158,10 +202,14 @@ impl DiscordSDK {
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn open_external_link(&self, args: OpenExternalLinkArgs) -> Result<OpenExternalLinkRes, JsValue> {
+    pub async fn open_external_link(
+        &self,
+        args: OpenExternalLinkArgs,
+    ) -> Result<OpenExternalLinkRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        let res = self.internal
+        let res = self
+            .internal
             .commands()
             .open_external_link(args_value)
             .await?;
@@ -185,18 +233,20 @@ impl DiscordSDK {
             .await
     }
 
-    pub async fn set_activity(&self, args: SetActivityArgs) -> Result<(), JsValue> {
+    pub async fn set_activity(&self, args: SetActivityArgs) -> Result<Activity, JsValue> {
         // Discord expects `activity: null` to clear the activity
         let serializer = serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true);
         let args_value = args.serialize(&serializer)?;
 
-        self.internal.commands().set_activity(args_value).await
+        let res = self.internal.commands().set_activity(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
-    pub async fn set_config(&self, args: SetConfigArgs) -> Result<(), JsValue> {
+    pub async fn set_config(&self, args: SetConfigArgs) -> Result<SetConfigRes, JsValue> {
         let args_value = serde_wasm_bindgen::to_value(&args)?;
 
-        self.internal.commands().set_config(args_value).await
+        let res = self.internal.commands().set_config(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
     }
 
     pub async fn set_orientation_lock_state(
@@ -215,20 +265,176 @@ impl DiscordSDK {
         let res = self.internal.commands().user_settings_get_locale().await?;
         Ok(serde_wasm_bindgen::from_value(res)?)
     }
+
+    pub async fn get_skus(&self) -> Result<GetSkusRes, JsValue> {
+        let res = self.internal.commands().get_skus().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_entitlements(&self) -> Result<GetEntitlementsRes, JsValue> {
+        let res = self.internal.commands().get_entitlements().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn start_purchase(
+        &self,
+        args: StartPurchaseArgs,
+    ) -> Result<Option<Vec<Entitlement>>, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self.internal.commands().start_purchase(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn share_link(&self, args: ShareLinkArgs) -> Result<ShareLinkRes, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self.internal.commands().share_link(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_user(&self, args: GetUserArgs) -> Result<Option<User>, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self.internal.commands().get_user(args_value).await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_relationships(&self) -> Result<GetRelationshipsRes, JsValue> {
+        let res = self.internal.commands().get_relationships().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn invite_user_embedded(&self, args: InviteUserEmbeddedArgs) -> Result<(), JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        self.internal
+            .commands()
+            .invite_user_embedded(args_value)
+            .await
+    }
+
+    pub async fn share_interaction(
+        &self,
+        args: ShareInteractionArgs,
+    ) -> Result<ShareInteractionRes, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self
+            .internal
+            .commands()
+            .share_interaction(args_value)
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn request_proxy_ticket_refresh(
+        &self,
+    ) -> Result<RequestProxyTicketRefreshRes, JsValue> {
+        let res = self
+            .internal
+            .commands()
+            .request_proxy_ticket_refresh()
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_quest(&self) -> Result<GetQuestRes, JsValue> {
+        let res = self.internal.commands().get_quest().await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn get_quest_enrollment_status(
+        &self,
+        args: QuestArgs,
+    ) -> Result<GetQuestEnrollmentStatusRes, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self
+            .internal
+            .commands()
+            .get_quest_enrollment_status(args_value)
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+
+    pub async fn quest_start_timer(&self, args: QuestArgs) -> Result<QuestStartTimerRes, JsValue> {
+        let args_value = serde_wasm_bindgen::to_value(&args)?;
+
+        let res = self
+            .internal
+            .commands()
+            .quest_start_timer(args_value)
+            .await?;
+        Ok(serde_wasm_bindgen::from_value(res)?)
+    }
+}
+
+pub fn patch_url_mappings(
+    mappings: &[UrlMapping],
+    config: PatchUrlMappingsConfig,
+) -> Result<(), JsValue> {
+    let mappings = serde_wasm_bindgen::to_value(mappings)?;
+    let config = serde_wasm_bindgen::to_value(&config)?;
+
+    activity_sys::sdk::patch_url_mappings(mappings, config);
+    Ok(())
 }
 
 pub struct EventSubscription {
     sdk: DiscordSDK,
     event_type: EventType,
-    _closure: Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
+    args: JsValue,
+    closure: Option<Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>>,
+}
+
+impl EventSubscription {
+    pub async fn unsubscribe(mut self) -> Result<(), JsValue> {
+        let Some(closure) = self.closure.as_ref() else {
+            return Ok(());
+        };
+
+        // Closure stays in `self` while awaiting so a cancelled future falls back to Drop
+        let res = self
+            .sdk
+            .internal
+            .unsubscribe(self.event_type.as_str(), closure, self.args.clone())
+            .await;
+
+        release_closure(self.closure.take().unwrap(), res.is_ok());
+        res
+    }
+}
+
+/// If unsubscribing failed the SDK never called `off`, so the listener still
+/// references the closure and it must not be freed.
+fn release_closure(
+    closure: Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
+    unsubscribed: bool,
+) {
+    if !unsubscribed {
+        closure.forget();
+    }
 }
 
 impl Drop for EventSubscription {
     fn drop(&mut self) {
+        let Some(closure) = self.closure.take() else {
+            return;
+        };
+
         console_debug!(
             "EventSubscription dropped, unsubscribing from event: {}",
             self.event_type
         );
-        let _ = self.sdk.unsubscribe_nowait(self.event_type.as_str());
+
+        // The closure must outlive the unsubscribe call, the SDK only removes the listener after it resolves
+        let internal = self.sdk.internal.clone();
+        let event = self.event_type.as_str().to_string();
+        let args = std::mem::replace(&mut self.args, JsValue::UNDEFINED);
+        wasm_bindgen_futures::spawn_local(async move {
+            let res = internal.unsubscribe(&event, &closure, args).await;
+            release_closure(closure, res.is_ok());
+        });
     }
 }
