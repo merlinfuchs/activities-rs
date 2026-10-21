@@ -2,10 +2,11 @@
 name = "activities-with-webpack"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-activity = { path="../../activity" }
+activity.workspace = true
 wasm-bindgen.workspace = true

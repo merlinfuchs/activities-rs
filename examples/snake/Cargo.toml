@@ -2,12 +2,13 @@
 name = "snake"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-activity = { path = "../../activity", version = "0.9.0" }
+activity.workspace = true
 futures = "0.3.30"
 rand = "0.8.5"
 wasm-bindgen.workspace = true
