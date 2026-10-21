@@ -1,6 +1,14 @@
 use std::fmt::Display;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+fn null_as_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Default + Deserialize<'de>,
+{
+    Ok(Option::<T>::deserialize(deserializer)?.unwrap_or_default())
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {
@@ -9,16 +17,18 @@ pub struct User {
     pub discriminator: String,
     #[serde(default)]
     pub avatar: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "null_as_default")]
     pub public_flags: u64,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "null_as_default")]
     pub flags: u64,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "null_as_default")]
     pub premium_type: u8,
     #[serde(default)]
     pub global_name: Option<String>,
     #[serde(default)]
     pub bot: bool,
+    #[serde(default)]
+    pub nickname: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -85,6 +95,8 @@ pub struct UserVoiceState {
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Activity {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<u8>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub details: Option<String>,
@@ -146,19 +158,26 @@ pub struct ActivitySecrets {
     pub r#match: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct SdkConfiguration {
     #[serde(rename = "disableConsoleLogOverride")]
     pub disable_console_log_override: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct AuthorizeArgs {
     pub client_id: String,
-    pub response_type: String,
-    pub state: String,
-    pub prompt: String,
     pub scope: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub response_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prompt: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code_challenge: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code_challenge_method: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -168,7 +187,8 @@ pub struct AuthorizeRes {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthenticateArgs {
-    pub access_token: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub access_token: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -180,10 +200,18 @@ pub struct AuthenticateRes {
     pub application: Application,
 }
 
+#[deprecated(note = "use CaptureLogArgs")]
+pub type CaputeLogArgs = CaptureLogArgs;
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CaputeLogArgs {
+pub struct CaptureLogArgs {
     pub level: String,
     pub message: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EncourageHardwareAccelerationRes {
+    pub enabled: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -199,7 +227,6 @@ pub struct GetChannelRes {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetChannelPermissionsRes {
-    #[serde(default)]
     pub permissions: u64,
 }
 
@@ -227,7 +254,7 @@ pub struct OpenExternalLinkArgs {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpenExternalLinkRes {
     #[serde(default)]
-    pub opened: bool,
+    pub opened: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -243,14 +270,34 @@ pub struct SetActivityArgs {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SetConfigArgs {
-    pub user_interactive_pip: bool,
+    pub use_interactive_pip: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct SetConfigRes {
+    pub use_interactive_pip: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OrientationLockState {
+    Unlocked = 1,
+    Portrait = 2,
+    Landscape = 3,
+}
+
+impl Serialize for OrientationLockState {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_u8(*self as u8)
+    }
+}
+
+#[derive(Serialize, Debug)]
 pub struct SetOrientationLockStateArgs {
-    pub lock_state: String,
-    pub picture_in_picture_lock_state: String,
-    pub grid_lock_state: String,
+    pub lock_state: OrientationLockState,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub picture_in_picture_lock_state: Option<OrientationLockState>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub grid_lock_state: Option<OrientationLockState>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -259,9 +306,247 @@ pub struct UserSettingsGetLocaleRes {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Sku {
+    pub id: String,
+    pub name: String,
+    pub r#type: i32,
+    pub price: SkuPrice,
+    pub application_id: String,
+    pub flags: u64,
+    #[serde(default)]
+    pub release_date: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SkuPrice {
+    pub amount: u64,
+    pub currency: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Entitlement {
+    pub id: String,
+    pub sku_id: String,
+    pub application_id: String,
+    pub user_id: String,
+    pub gift_code_flags: u64,
+    pub r#type: i32,
+    #[serde(default)]
+    pub gifter_user_id: Option<String>,
+    #[serde(default)]
+    pub branches: Option<Vec<String>>,
+    #[serde(default)]
+    pub starts_at: Option<String>,
+    #[serde(default)]
+    pub ends_at: Option<String>,
+    #[serde(default)]
+    pub parent_id: Option<String>,
+    #[serde(default)]
+    pub consumed: Option<bool>,
+    #[serde(default)]
+    pub deleted: Option<bool>,
+    #[serde(default)]
+    pub gift_code_batch_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetSkusRes {
+    pub skus: Vec<Sku>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetEntitlementsRes {
+    pub entitlements: Vec<Entitlement>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StartPurchaseArgs {
+    pub sku_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pid: Option<u32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ShareLinkArgs {
+    pub message: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareLinkRes {
+    pub success: bool,
+    #[serde(rename = "didCopyLink")]
+    pub did_copy_link: bool,
+    #[serde(rename = "didSendMessage")]
+    pub did_send_message: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetUserArgs {
+    pub id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Relationship {
+    pub r#type: i32,
+    pub user: User,
+    #[serde(default)]
+    pub presence: Option<RelationshipPresence>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RelationshipPresence {
+    pub status: String,
+    #[serde(default)]
+    pub activity: Option<Activity>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetRelationshipsRes {
+    pub relationships: Vec<Relationship>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct InviteUserEmbeddedArgs {
+    pub user_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ShareInteractionArgs {
+    pub command: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<ShareInteractionOption>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub require_launch_channel: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preview_image: Option<ShareInteractionPreviewImage>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub components: Option<Vec<ShareInteractionActionRow>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pid: Option<u32>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareInteractionOption {
+    pub name: String,
+    pub value: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareInteractionPreviewImage {
+    pub url: String,
+    pub width: u32,
+    pub height: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareInteractionActionRow {
+    /// Always 1
+    pub r#type: u8,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub components: Option<Vec<ShareInteractionButton>>,
+}
+
+impl ShareInteractionActionRow {
+    pub fn new(components: Vec<ShareInteractionButton>) -> Self {
+        Self {
+            r#type: 1,
+            components: Some(components),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareInteractionButton {
+    /// Always 2
+    pub r#type: u8,
+    pub style: u8,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_id: Option<String>,
+}
+
+impl ShareInteractionButton {
+    pub fn new(style: u8, label: Option<String>, custom_id: Option<String>) -> Self {
+        Self {
+            r#type: 2,
+            style,
+            label,
+            custom_id,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShareInteractionRes {
+    pub success: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RequestProxyTicketRefreshRes {
+    pub ticket: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetQuestRes {
+    pub quest_id: String,
+    pub external_cta_url: String,
+    #[serde(default)]
+    pub enrolled_at: Option<String>,
+    #[serde(default)]
+    pub completed_at: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct QuestArgs {
+    pub quest_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetQuestEnrollmentStatusRes {
+    pub quest_id: String,
+    pub is_enrolled: bool,
+    #[serde(default)]
+    pub enrolled_at: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct QuestStartTimerRes {
+    pub success: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UrlMapping {
+    pub prefix: String,
+    pub target: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct PatchUrlMappingsConfig {
+    #[serde(rename = "patchFetch", skip_serializing_if = "Option::is_none")]
+    pub patch_fetch: Option<bool>,
+    #[serde(rename = "patchWebSocket", skip_serializing_if = "Option::is_none")]
+    pub patch_web_socket: Option<bool>,
+    #[serde(rename = "patchXhr", skip_serializing_if = "Option::is_none")]
+    pub patch_xhr: Option<bool>,
+    #[serde(rename = "patchSrcAttributes", skip_serializing_if = "Option::is_none")]
+    pub patch_src_attributes: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ReadyEvent {
     pub v: u8,
     pub config: ReadyEventConfig,
+    #[serde(default)]
+    pub user: Option<ReadyEventUser>,
 }
 
 impl EventPayload for ReadyEvent {
@@ -272,15 +557,26 @@ impl EventPayload for ReadyEvent {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ReadyEventConfig {
-    cdn_host: String,
-    api_endpoint: String,
-    environment: String,
+    #[serde(default)]
+    pub cdn_host: Option<String>,
+    pub api_endpoint: String,
+    pub environment: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ReadyEventUser {
+    pub id: String,
+    pub username: String,
+    pub discriminator: String,
+    #[serde(default)]
+    pub avatar: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ErrorEvent {
     pub code: u64,
-    pub message: String,
+    #[serde(default)]
+    pub message: Option<String>,
 }
 
 impl EventPayload for ErrorEvent {
@@ -348,7 +644,7 @@ impl EventPayload for SpeakingStopEvent {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ActivityLayoutModeUpdateEvent {
-    pub layout_mode: u8,
+    pub layout_mode: i32,
 }
 
 impl EventPayload for ActivityLayoutModeUpdateEvent {
@@ -359,7 +655,9 @@ impl EventPayload for ActivityLayoutModeUpdateEvent {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OrientationUpdateEvent {
-    pub screen_orientation: u8,
+    pub screen_orientation: i32,
+    #[serde(default)]
+    pub orientation: Option<String>,
 }
 
 impl EventPayload for OrientationUpdateEvent {
@@ -394,7 +692,7 @@ impl EventPayload for CurrentGuildMemberUpdateEvent {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ThermalStateUpdateEvent {
-    pub thermal_state: u8,
+    pub thermal_state: i32,
 }
 
 impl EventPayload for ThermalStateUpdateEvent {
@@ -414,6 +712,55 @@ impl EventPayload for ActivityInstanceParticipantsUpdateEvent {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EntitlementCreateEvent {
+    pub entitlement: Entitlement,
+}
+
+impl EventPayload for EntitlementCreateEvent {
+    fn event_type() -> EventType {
+        EventType::EntitlementCreate
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ActivityJoinEvent {
+    #[serde(rename = "applicationId")]
+    pub application_id: String,
+    pub secret: String,
+}
+
+impl EventPayload for ActivityJoinEvent {
+    fn event_type() -> EventType {
+        EventType::ActivityJoin
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RelationshipUpdateEvent {
+    #[serde(flatten)]
+    pub relationship: Relationship,
+}
+
+impl EventPayload for RelationshipUpdateEvent {
+    fn event_type() -> EventType {
+        EventType::RelationshipUpdate
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct QuestEnrollmentStatusUpdateEvent {
+    pub quest_id: String,
+    pub is_enrolled: bool,
+    pub enrolled_at: String,
+}
+
+impl EventPayload for QuestEnrollmentStatusUpdateEvent {
+    fn event_type() -> EventType {
+        EventType::QuestEnrollmentStatusUpdate
+    }
+}
+
 pub enum EventType {
     Ready,
     Error,
@@ -426,6 +773,10 @@ pub enum EventType {
     CurrentGuildMemberUpdate,
     ThermalStateUpdate,
     ActivityInstanceParticipantsUpdate,
+    EntitlementCreate,
+    ActivityJoin,
+    RelationshipUpdate,
+    QuestEnrollmentStatusUpdate,
 }
 
 impl EventType {
@@ -444,6 +795,10 @@ impl EventType {
             EventType::ActivityInstanceParticipantsUpdate => {
                 "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE"
             }
+            EventType::EntitlementCreate => "ENTITLEMENT_CREATE",
+            EventType::ActivityJoin => "ACTIVITY_JOIN",
+            EventType::RelationshipUpdate => "RELATIONSHIP_UPDATE",
+            EventType::QuestEnrollmentStatusUpdate => "QUEST_ENROLLMENT_STATUS_UPDATE",
         }
     }
 }

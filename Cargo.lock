@@ -16,6 +16,7 @@ version = "0.9.0"
 dependencies = [
  "activity-macros",
  "activity-sys",
+ "js-sys",
  "serde",
  "serde-wasm-bindgen 0.4.5",
  "wasm-bindgen",

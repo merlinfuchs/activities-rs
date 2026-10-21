@@ -9,6 +9,12 @@ extern "C" {
     #[wasm_bindgen(constructor, catch)]
     pub fn new(clientId: &str) -> Result<DiscordSDK, JsValue>;
 
+    #[wasm_bindgen(constructor, catch)]
+    pub fn new_with_configuration(
+        clientId: &str,
+        configuration: JsValue,
+    ) -> Result<DiscordSDK, JsValue>;
+
     #[wasm_bindgen(method, getter, js_name = clientId)]
     pub fn client_id(this: &DiscordSDK) -> String;
 
@@ -29,6 +35,15 @@ extern "C" {
 
     #[wasm_bindgen(method, getter, js_name = channelId)]
     pub fn channel_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter, js_name = locationId)]
+    pub fn location_id(this: &DiscordSDK) -> Option<String>;
+
+    #[wasm_bindgen(method, getter, js_name = sdkVersion)]
+    pub fn sdk_version(this: &DiscordSDK) -> String;
+
+    #[wasm_bindgen(method, getter, js_name = mobileAppVersion)]
+    pub fn mobile_app_version(this: &DiscordSDK) -> Option<String>;
 
     #[wasm_bindgen(method, getter, js_name = sourceOrigin)]
     pub fn source_origin(this: &DiscordSDK) -> Option<String>;
@@ -51,10 +66,18 @@ extern "C" {
     ) -> Result<(), JsValue>;
 
     #[wasm_bindgen(method, catch)]
-    pub async fn unsubscribe(this: &DiscordSDK, event: &str) -> Result<(), JsValue>;
+    pub async fn unsubscribe(
+        this: &DiscordSDK,
+        event: &str,
+        f: &Closure<dyn FnMut(JsValue) -> Result<(), JsValue>>,
+        args: JsValue,
+    ) -> Result<(), JsValue>;
 
-    #[wasm_bindgen(method, js_name = unsubscribe)]
-    pub fn unsubscribe_nowait(this: &DiscordSDK, event: &str);
+    #[wasm_bindgen(method)]
+    pub fn close(this: &DiscordSDK, code: u16, message: &str);
+
+    #[wasm_bindgen(js_name = patchUrlMappings)]
+    pub fn patch_url_mappings(mappings: JsValue, config: JsValue);
 }
 
 #[wasm_bindgen]
@@ -73,7 +96,9 @@ extern "C" {
     pub async fn capture_log(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = encourageHardwareAcceleration)]
-    pub async fn encourage_hardware_acceleration(this: &DiscordSDKCommands) -> Result<(), JsValue>;
+    pub async fn encourage_hardware_acceleration(
+        this: &DiscordSDKCommands,
+    ) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = getChannel)]
     pub async fn get_channel(this: &DiscordSDKCommands, args: JsValue) -> Result<JsValue, JsValue>;
@@ -83,6 +108,11 @@ extern "C" {
 
     #[wasm_bindgen(method, catch, js_name = getInstanceConnectedParticipants)]
     pub async fn get_instance_connected_participants(
+        this: &DiscordSDKCommands,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getActivityInstanceConnectedParticipants)]
+    pub async fn get_activity_instance_connected_participants(
         this: &DiscordSDKCommands,
     ) -> Result<JsValue, JsValue>;
 
@@ -108,10 +138,11 @@ extern "C" {
     ) -> Result<(), JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = setActivity)]
-    pub async fn set_activity(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
+    pub async fn set_activity(this: &DiscordSDKCommands, args: JsValue)
+        -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = setConfig)]
-    pub async fn set_config(this: &DiscordSDKCommands, args: JsValue) -> Result<(), JsValue>;
+    pub async fn set_config(this: &DiscordSDKCommands, args: JsValue) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(method, catch, js_name = setOrientationLockState)]
     pub async fn set_orientation_lock_state(
@@ -121,4 +152,57 @@ extern "C" {
 
     #[wasm_bindgen(method, catch, js_name = userSettingsGetLocale)]
     pub async fn user_settings_get_locale(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getSkus)]
+    pub async fn get_skus(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getEntitlements)]
+    pub async fn get_entitlements(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = startPurchase)]
+    pub async fn start_purchase(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = shareLink)]
+    pub async fn share_link(this: &DiscordSDKCommands, args: JsValue) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getUser)]
+    pub async fn get_user(this: &DiscordSDKCommands, args: JsValue) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getRelationships)]
+    pub async fn get_relationships(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = inviteUserEmbedded)]
+    pub async fn invite_user_embedded(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<(), JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = shareInteraction)]
+    pub async fn share_interaction(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = requestProxyTicketRefresh)]
+    pub async fn request_proxy_ticket_refresh(
+        this: &DiscordSDKCommands,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getQuest)]
+    pub async fn get_quest(this: &DiscordSDKCommands) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = getQuestEnrollmentStatus)]
+    pub async fn get_quest_enrollment_status(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(method, catch, js_name = questStartTimer)]
+    pub async fn quest_start_timer(
+        this: &DiscordSDKCommands,
+        args: JsValue,
+    ) -> Result<JsValue, JsValue>;
 }
